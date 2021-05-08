@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>sumk-dubbo-project</artifactId>
+        <groupId>com.github.wjiajun</groupId>
+        <version>${revision}</version>
+        <relativePath>../sumk-dubbo-parent/pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>sumk-dubbo-compatible</artifactId>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- Sumk -->
+        <dependency>
+            <groupId>com.github.youtongluan</groupId>
+            <artifactId>sumk</artifactId>
+        </dependency>
+        <!-- Dubbo -->
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
