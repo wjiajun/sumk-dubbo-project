@@ -11,7 +11,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>sumk-dubbo-samples-provider</artifactId>
+    <artifactId>sumk-dubbo-samples-consumer</artifactId>
 
     <dependencies>
         <dependency>

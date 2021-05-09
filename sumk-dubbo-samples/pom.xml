@@ -3,14 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>sumk-dubbo-project</artifactId>
+        <artifactId>sumk-dubbo-parent</artifactId>
         <groupId>com.github.wjiajun</groupId>
         <version>${revision}</version>
         <relativePath>../sumk-dubbo-parent/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.wjiajun</groupId>
     <artifactId>sumk-dubbo-samples</artifactId>
     <packaging>pom</packaging>
 
