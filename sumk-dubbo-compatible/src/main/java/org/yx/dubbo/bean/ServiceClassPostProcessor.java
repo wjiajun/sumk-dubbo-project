@@ -1,7 +1,18 @@
 package org.yx.dubbo.bean;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.dubbo.common.utils.ArrayUtils;
+import org.apache.dubbo.common.utils.CollectionUtils;
+import org.apache.dubbo.common.utils.ConcurrentHashSet;
+import org.apache.dubbo.common.utils.ReflectUtils;
+import org.apache.dubbo.common.utils.StringUtils;
+import org.apache.dubbo.config.MethodConfig;
+import org.apache.dubbo.config.MonitorConfig;
+import org.apache.dubbo.config.ProtocolConfig;
+import org.apache.dubbo.config.RegistryConfig;
+import org.apache.dubbo.config.annotation.Method;
 import org.slf4j.Logger;
-import org.springframework.util.StringUtils;
 import org.yx.annotation.spec.InjectSpec;
 import org.yx.annotation.spec.Specs;
 import org.yx.annotation.spec.parse.SpecParsers;
@@ -12,9 +23,12 @@ import org.yx.bean.Loader;
 import org.yx.common.scaner.ClassScaner;
 import org.yx.conf.AppInfo;
 import org.yx.conf.Const;
+import org.yx.dubbo.annotation.AnnotationAttributes;
+import org.yx.dubbo.ioc.BeanRegistry;
 import org.yx.dubbo.main.DubboStartConstants;
 import org.yx.dubbo.spec.DubboBeanSpec;
 import org.yx.dubbo.spec.DubboBuiltIn;
+import org.yx.dubbo.utils.ResolveUtils;
 import org.yx.exception.SimpleSumkException;
 import org.yx.exception.SumkException;
 import org.yx.log.Logs;
@@ -33,15 +47,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 /**
  * @author : wjiajun
+ * @Service
  * @description:
  */
 public class ServiceClassPostProcessor {
 
     private static final Logger logger = Logs.ioc();
+
+    /**
+     * serviceBean Name 缓存 Map
+     */
+    private static ConcurrentHashSet<String> serviceBeanNameSet;
 
     public static synchronized void init() {
         if (StartContext.inst().get(DubboStartConstants.ENABLE_DUBBO) == null
@@ -63,7 +85,7 @@ public class ServiceClassPostProcessor {
 
             try {
                 if (logger.isTraceEnabled()) {
-                    logger.trace("{} begin loading");
+                    logger.trace("{} begin loading", c);
                 }
 
                 Class<?> clz = Loader.loadClassExactly(c);
@@ -83,28 +105,37 @@ public class ServiceClassPostProcessor {
         registerServiceBeans(clazzList);
     }
 
+    /**
+     * 获取已经注入的Dubbo Service Bean Name(Sumk)
+     *
+     * @return
+     */
+    public static ConcurrentHashSet<String> getServiceBeanNameSet() {
+        return Optional.ofNullable(serviceBeanNameSet).orElse(new ConcurrentHashSet<>());
+    }
+
     private static void registerServiceBeans(List<Class<?>> clazzList) {
         int beanSize = clazzList.size();
-        Map<String, Object> beanMap = new HashMap<>(beanSize + beanSize / 3);
+        ConcurrentMap<String, Object> beanMap = Maps.newConcurrentMap();
+        if (serviceBeanNameSet == null) {
+            serviceBeanNameSet = new ConcurrentHashSet<>(beanSize + beanSize / 3);
+        }
 
         clazzList.forEach(clazz -> {
             DubboBeanSpec parse = SpecParsers.parse(clazz, DubboBuiltIn.DUBBO_PARSER);
             if (parse == null) {
                 return;
             }
+            // 生成bean
+            String beanName = ResolveUtils.generateServiceBeanName(parse);
             try {
-                // 注入sumk
-                beanMap.putIfAbsent(BeanKit.resloveBeanName(clazz), InnerIOC.putClass(BeanKit.resloveBeanName(clazz), clazz));
+                beanMap.putIfAbsent(beanName, BeanRegistry.putSameBeanIfAlias(beanName, clazz));
+                serviceBeanNameSet.add(beanName);
             } catch (Exception e) {
                 throw new SumkException(-345365, "IOC error on " + clazz, e);
             }
-            // 重新生成bean名称
-            String beanName = generateServiceBeanName(parse);
-            try {
-                beanMap.putIfAbsent(beanName, InnerIOC.putClass(beanName, clazz));
-            } catch (Exception e) {
-                throw new SumkException(-345365, "IOC error on " + clazz, e);
-            }
+            ServiceBean serviceBean = buildServiceBean(beanMap.get(beanName), parse);
+
         });
 
         beanMap.values().forEach(bean -> {
@@ -114,31 +145,75 @@ public class ServiceClassPostProcessor {
                 throw new SumkException(-345365, "IOC error on " + bean, e);
             }
         });
-
-        beanMap.entrySet().forEach(e -> e.setValue(null));
     }
 
-    private static String generateServiceBeanName(DubboBeanSpec dubboBeanSpec) {
-        StringBuilder beanNameBuilder = new StringBuilder("ServiceBean");
-        // Required
-        append(beanNameBuilder, dubboBeanSpec.getInterfaceName());
-        // Optional
-        append(beanNameBuilder, dubboBeanSpec.getVersion());
-        append(beanNameBuilder, dubboBeanSpec.getGroup());
-        // Build and remove last ":"
-        String rawBeanName = beanNameBuilder.toString();
-        return rawBeanName;
-    }
+    private static ServiceBean buildServiceBean(Object obj, DubboBeanSpec dubboBeanSpec) {
+        Class<?> interfaceClass = dubboBeanSpec.getInterfaceClass();
+        ServiceBean<Object> serviceBean = new ServiceBean<>();
 
-    private static void append(StringBuilder builder, String value) {
-        if (StringUtils.hasText(value)) {
-            if (value.contains("${")) {
-                String replace = value.replace("${", "").replace("}", "");
-                builder.append(":").append(AppInfo.getLatin(replace, ""));
-                return;
-            }
-            builder.append(":").append(value);
+        List<String> ignoreAttributeNames = Lists.newArrayList("provider", "monitor", "application", "module", "registry", "protocol",
+                "interface", "interfaceName", "parameters");
+        serviceBean.setRef(obj);
+
+        Map<String, Field> referenceBeanFieldMap = ReflectUtils.getBeanPropertyFields(ServiceBean.class);
+
+        AnnotationAttributes annotationAttributes = dubboBeanSpec.getAnnotationAttributes();
+
+        referenceBeanFieldMap.keySet().stream()
+                .filter(f -> !ignoreAttributeNames.contains(f))
+                .forEach(f -> {
+                    try {
+                        Field field = ReferenceBean.class.getField(f);
+                        boolean accessible = field.isAccessible();
+                        field.setAccessible(true);
+
+                        Object o = annotationAttributes.get(f);
+
+                        field.set(serviceBean, o);
+                        field.setAccessible(accessible);
+                    } catch (Exception e) {
+                        throw new SumkException(-345365, "ReferenceBeanBuilder preConfigureBean", e);
+                    }
+                });
+        serviceBean.setInterface(interfaceClass);
+        serviceBean.setParameters(convertParameters(annotationAttributes.getStringArray("parameters")));
+        List<MethodConfig> methodConfigs = convertMethodConfigs(annotationAttributes.get("methods"));
+        if(CollectionUtils.isNotEmpty(methodConfigs)) {
+            serviceBean.setMethods(methodConfigs);
         }
+
+        String providerConfigBeanName = annotationAttributes.getString("provider");
+        if(StringUtils.isNoneEmpty(providerConfigBeanName)) {
+            serviceBean.setProvider(IOC.get(providerConfigBeanName));
+        }
+
+
+        String monitorConfigBeanName = annotationAttributes.getString("monitor");
+        if(StringUtils.isNoneEmpty(monitorConfigBeanName)) {
+            serviceBean.setMonitor((MonitorConfig)IOC.get(monitorConfigBeanName));
+        }
+
+        String applicationConfigBeanName = annotationAttributes.getString("application");
+        if(StringUtils.isNoneEmpty(applicationConfigBeanName)) {
+            serviceBean.setApplication(IOC.get(applicationConfigBeanName));
+        }
+
+        String moduleConfigBeanName = annotationAttributes.getString("module");
+        if(StringUtils.isNoneEmpty(moduleConfigBeanName)) {
+            serviceBean.setModule(IOC.get(moduleConfigBeanName));
+        }
+
+        String[] registryConfigBeanNames = annotationAttributes.getStringArray("registry");
+        if(ArrayUtils.isNotEmpty(registryConfigBeanNames)) {
+            serviceBean.setRegistries(BeanRegistry.getBeans(registryConfigBeanNames, RegistryConfig.class));
+        }
+
+        String[] protocolConfigBeanNames = annotationAttributes.getStringArray("protocol");
+        if(ArrayUtils.isNotEmpty(protocolConfigBeanNames)) {
+            serviceBean.setProtocols(BeanRegistry.getBeans(protocolConfigBeanNames, ProtocolConfig.class));
+        }
+
+        return serviceBean;
     }
 
     private static void injectProperties(Object bean) throws Exception {
@@ -233,5 +308,28 @@ public class ServiceClassPostProcessor {
             }
         }
         return IOC.get(clz);
+    }
+
+    private static Map<String, String> convertParameters(String[] parameters) {
+        if (ArrayUtils.isEmpty(parameters)) {
+            return null;
+        }
+
+        if (parameters.length % 2 != 0) {
+            throw new IllegalArgumentException("parameter attribute must be paired with key followed by value");
+        }
+
+        Map<String, String> map = new HashMap<>();
+        for (int i = 0; i < parameters.length; i += 2) {
+            map.put(parameters[i], parameters[i + 1]);
+        }
+        return map;
+    }
+
+    private static List<MethodConfig> convertMethodConfigs(Object methodsAnnotation) {
+        if (methodsAnnotation == null) {
+            return Collections.emptyList();
+        }
+        return MethodConfig.constructMethodConfig((Method[]) methodsAnnotation);
     }
 }

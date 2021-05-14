@@ -3,6 +3,7 @@ package org.yx.dubbo;
 import org.yx.annotation.Bean;
 import org.yx.bean.IOC;
 import org.yx.bean.Plugin;
+import org.yx.dubbo.bean.ReferenceBeanPostProcessor;
 import org.yx.dubbo.bean.ServiceClassPostProcessor;
 import org.yx.dubbo.config.DubboConfig;
 import org.yx.dubbo.listener.DubboEventListener;
@@ -32,6 +33,8 @@ public class DubboPlugin implements Plugin {
         DubboConfig.init();
         // 初始化provider
         ServiceClassPostProcessor.init();
+        // 初始化reference
+        ReferenceBeanPostProcessor.init();
 
         buildDubboListeners();
         DubboEventPublisher.publish(new DubboStartEvent(new Object()));

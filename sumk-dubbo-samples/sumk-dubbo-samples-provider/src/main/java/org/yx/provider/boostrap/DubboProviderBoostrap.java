@@ -8,7 +8,6 @@ import org.yx.log.LogType;
 import org.yx.main.StartConstants;
 import org.yx.main.SumkServer;
 import org.yx.provider.service.DefaultDemoService;
-import org.yx.provider.sumk.bean.DemoBeanService;
 
 /**
  * @author : wjiajun

@@ -1,5 +1,7 @@
 package org.yx.dubbo.spec;
 
+import org.yx.dubbo.annotation.AnnotationAttributes;
+
 /**
  * @author : wjiajun
  * @description:
@@ -16,12 +18,15 @@ public class DubboBeanSpec {
 
     private String application;
 
-    public DubboBeanSpec(Class<?> interfaceClass, String interfaceName, String version, String group, String application) {
+    private AnnotationAttributes annotationAttributes;
+
+    public DubboBeanSpec(Class<?> interfaceClass, String interfaceName, String version, String group, String application, AnnotationAttributes annotationAttributes) {
         this.interfaceClass = interfaceClass;
         this.interfaceName = interfaceName;
         this.version = version;
         this.group = group;
         this.application = application;
+        this.annotationAttributes = annotationAttributes;
     }
 
     public Class<?> getInterfaceClass() {
@@ -62,5 +67,13 @@ public class DubboBeanSpec {
 
     public void setApplication(String application) {
         this.application = application;
+    }
+
+    public AnnotationAttributes getAnnotationAttributes() {
+        return annotationAttributes;
+    }
+
+    public void setAnnotationAttributes(AnnotationAttributes annotationAttributes) {
+        this.annotationAttributes = annotationAttributes;
     }
 }
