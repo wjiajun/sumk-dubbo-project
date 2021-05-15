@@ -1,6 +1,6 @@
 package org.yx.dubbo.bean;
 
-import org.apache.dubbo.config.spring.ServiceBean;
+import com.google.common.collect.Maps;
 import org.yx.annotation.spec.parse.SpecParsers;
 import org.yx.bean.IOC;
 import org.yx.bean.InnerIOC;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 public class ReferenceBeanPostProcessor {
 
-    private static ConcurrentMap<String, ReferenceBean<?>> referenceBeanCache;
+    private static ConcurrentMap<String, ReferenceBean<?>> referenceBeanCache = Maps.newConcurrentMap();
 
     public static synchronized void init() {
         if (StartContext.inst().get(DubboStartConstants.ENABLE_DUBBO) == null
@@ -33,17 +33,25 @@ public class ReferenceBeanPostProcessor {
         }
 
         // 获取Dubbo Service Bean
-        List<Object> serviceBeanList = ServiceClassPostProcessor.getServiceBeanNameSet()
-                .stream()
-                .map(IOC::get)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+//        List<Object> serviceBeanList = ServiceClassPostProcessor.getServiceBeanNameSet()
+//                .stream()
+//                .map(IOC::get)
+//                .filter(Objects::nonNull)
+//                .collect(Collectors.toList());
 
-        serviceBeanList.forEach(bean -> {
-            DubboBeanSpec parse = SpecParsers.parse(bean.getClass(), DubboBuiltIn.DUBBO_PARSER);
-            if (parse == null) {
-                return;
-            }
+
+//        InnerIOC.beans().forEach(bean -> {
+//            DubboBeanSpec parse = SpecParsers.parse(bean.getClass(), DubboBuiltIn.DUBBO_PARSER);
+//            if (parse == null) {
+//                return;
+//            }
+//            try {
+//                injectProperties(bean);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        });
+        InnerIOC.beans().forEach(bean -> {
             try {
                 injectProperties(bean);
             } catch (Exception e) {
@@ -56,11 +64,15 @@ public class ReferenceBeanPostProcessor {
      * 获取代理后的DubboRefernce
      */
     public static Object doGetInjectedBean(Object bean, Field f) throws Exception {
-        DubboBeanSpec serviceSpec = SpecParsers.parse(bean.getClass(), DubboBuiltIn.DUBBO_PARSER);
         DubboBeanSpec referenceSpec = SpecParsers.parse(bean, f, DubboBuiltIn.DUBBO_REFERENCE_PARSER);
+        if(referenceSpec == null) {
+            return null;
+        }
 
-        ReferenceBean<?> referenceBean = buildReferenceBeanIfAbsent(serviceSpec, referenceSpec, f.getClass());
-        String serviceBeanName = ResolveUtils.generateReferenceBeanName(serviceSpec);
+        String serviceBeanName = ResolveUtils.generateServiceBeanName(referenceSpec);
+
+        ReferenceBean<?> referenceBean = buildReferenceBeanIfAbsent(referenceSpec, f.getType());
+
         boolean localServiceBean = isLocalServiceBean(serviceBeanName, referenceBean, referenceSpec);
         prepareReferenceBean(serviceBeanName, referenceBean, localServiceBean);
         registerReferenceBean(referenceBean, referenceSpec);
@@ -87,7 +99,7 @@ public class ReferenceBeanPostProcessor {
         return remote;
     }
 
-    private static ReferenceBean<?> buildReferenceBeanIfAbsent(DubboBeanSpec dubboBeanSpec, DubboBeanSpec referenceSpec, Class<?> referencedType)
+    private static ReferenceBean<?> buildReferenceBeanIfAbsent(DubboBeanSpec referenceSpec, Class<?> referencedType)
             throws Exception {
 
         String referenceBeanName = ResolveUtils.generateReferenceBeanName(referenceSpec);
@@ -108,7 +120,7 @@ public class ReferenceBeanPostProcessor {
         return referenceBean;
     }
 
-    private static void injectProperties(Object bean) throws Exception {
+    public static void injectProperties(Object bean) throws Exception {
         Class<?> tempClz = bean.getClass();
         while (tempClz != null && (!tempClz.getName().startsWith(Loader.JAVA_PRE))) {
 

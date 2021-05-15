@@ -1,7 +1,9 @@
 package org.yx.dubbo.bean;
 
 import com.google.common.collect.Iterables;
+import org.apache.dubbo.common.utils.ArrayUtils;
 import org.apache.dubbo.common.utils.Assert;
+import org.apache.dubbo.common.utils.FieldUtils;
 import org.apache.dubbo.common.utils.ReflectUtils;
 import org.apache.dubbo.config.ConsumerConfig;
 import org.apache.dubbo.config.MethodConfig;
@@ -10,18 +12,22 @@ import org.yx.bean.IOC;
 import org.yx.dubbo.annotation.AnnotationAttributes;
 import org.yx.dubbo.annotation.AnnotationResolver;
 import org.yx.dubbo.spec.DubboBeanSpec;
+import org.yx.dubbo.utils.ResolveUtils;
 import org.yx.exception.SumkException;
 import org.yx.util.CollectionUtil;
 import org.yx.util.kit.Asserts;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 class ReferenceBeanBuilder extends AnnotatedInterfaceConfigBeanBuilder<ReferenceBean> {
 
     // Ignore those fields
-    static final String[] IGNORE_FIELD_NAMES = new String[]{"application", "module", "consumer", "monitor", "registry"};
+    static final String[] IGNORE_FIELD_NAMES = new String[]{"application", "module", "consumer", "monitor",
+            "registry", "filter", "listener", "parameters", "providedBy", "methods", "services", "generic", "serviceMetadata",
+            "repository", "injvm"};
 
     private ReferenceBeanBuilder(DubboBeanSpec dubboBeanSpec) {
         super(dubboBeanSpec);
@@ -54,6 +60,12 @@ class ReferenceBeanBuilder extends AnnotatedInterfaceConfigBeanBuilder<Reference
         referenceBean.setConsumer(consumerConfig);
     }
 
+    @Override
+    protected void configureParametersConfig(DubboBeanSpec dubboBeanSpec, ReferenceBean referenceBean) {
+        AnnotationAttributes annotationAttributes = dubboBeanSpec.getAnnotationAttributes();
+        referenceBean.setParameters(ResolveUtils.convertParameters(annotationAttributes.getStringArray("parameters")));
+    }
+
     void configureMethodConfig(DubboBeanSpec dubboBeanSpec, ReferenceBean<?> referenceBean) {
         Method[] methods = dubboBeanSpec.getAnnotationAttributes().getAnnotationArray("methods", Method.class);
         List<MethodConfig> methodConfigs = MethodConfig.constructMethodConfig(methods);
@@ -76,23 +88,23 @@ class ReferenceBeanBuilder extends AnnotatedInterfaceConfigBeanBuilder<Reference
 
         Map<String, Field> referenceBeanFieldMap = ReflectUtils.getBeanPropertyFields(referenceBean.getClass());
 
-        referenceBeanFieldMap.keySet().stream()
-                .filter(f -> !ignoreFields.contains(f))
-                .forEach(f -> {
-                    AnnotationAttributes annotationAttributes = dubboBeanSpec.getAnnotationAttributes();
-                    try {
-                        Field field = ReferenceBean.class.getField(f);
-                        boolean accessible = field.isAccessible();
-                        field.setAccessible(true);
-
-                        Object o = annotationAttributes.get(f);
-
-                        field.set(referenceBean, o);
-                        field.setAccessible(accessible);
-                    } catch (Exception e) {
-                        throw new SumkException(-345365, "ReferenceBeanBuilder preConfigureBean", e);
-                    }
-                });
+//        referenceBeanFieldMap.keySet().stream()
+//                .filter(f -> !ignoreFields.contains(f))
+//                .forEach(f -> {
+//                    AnnotationAttributes annotationAttributes = dubboBeanSpec.getAnnotationAttributes();
+//                    try {
+//                        Field field = FieldUtils.findField(referenceBean, f);
+//                        boolean accessible = field.isAccessible();
+//                        field.setAccessible(true);
+//
+//                        Object o = annotationAttributes.get(f);
+//
+//                        field.set(referenceBean, o);
+//                        field.setAccessible(accessible);
+//                    } catch (Exception e) {
+//                        throw new SumkException(-345365, "ReferenceBeanBuilder preConfigureBean", e);
+//                    }
+//                });
     }
 
     @Override

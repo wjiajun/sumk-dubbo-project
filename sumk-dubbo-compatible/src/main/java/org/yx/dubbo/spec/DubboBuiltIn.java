@@ -1,12 +1,11 @@
 package org.yx.dubbo.spec;
 
+import com.google.common.base.MoreObjects;
 import org.apache.dubbo.common.utils.AnnotationUtils;
 import org.apache.dubbo.common.utils.ServiceAnnotationResolver;
-import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.dubbo.config.annotation.Reference;
 import org.yx.dubbo.annotation.AnnotationAttributes;
 import org.yx.dubbo.annotation.AnnotationResolver;
-import org.yx.dubbo.utils.ResolveUtils;
+import org.yx.dubbo.annotation.ReferenceAnnotationResolver;
 import org.yx.dubbo.utils.ValueUtils;
 
 import java.lang.annotation.Annotation;
@@ -14,8 +13,6 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import static java.util.Arrays.asList;
 
 /**
  * @author : wjiajun
@@ -25,11 +22,7 @@ public class DubboBuiltIn {
 
     private final static List<Class<? extends Annotation>> serviceAnnotationTypes = ServiceAnnotationResolver.SERVICE_ANNOTATION_CLASSES;
 
-    private final static List<Class<? extends Annotation>> referenceAnnotationTypes = asList(
-            DubboReference.class,
-            Reference.class,
-            com.alibaba.dubbo.config.annotation.Reference.class
-    );
+    private final static List<Class<? extends Annotation>> referenceAnnotationTypes = ReferenceAnnotationResolver.REFERENCE_ANNOTATION_CLASSES;
 
     public static final Function<Class<?>, DubboBeanSpec> DUBBO_PARSER = clz -> {
         boolean isDubboService = serviceAnnotationTypes.stream().anyMatch(t -> clz.getAnnotation(t) != null);
@@ -44,48 +37,41 @@ public class DubboBuiltIn {
             return null;
         }
 
-        String interfaceName = serviceAnnotationResolver.resolveInterfaceClassName();
         String group = serviceAnnotationResolver.resolveGroup();
         String version = ValueUtils.getValue(serviceAnnotationResolver.resolveVersion());
 
         AnnotationAttributes annotationAttributes = AnnotationResolver.getAnnotationAttributes(dubboService);
         Class<?> interfaceClass = AnnotationResolver.resolveServiceInterfaceClass(annotationAttributes, clz);
+        String interfaceName = MoreObjects.firstNonNull(interfaceClass.getName(), serviceAnnotationResolver.resolveInterfaceClassName());
+
         String application = AnnotationUtils.getAttribute(dubboService, "application");
 
         return new DubboBeanSpec(interfaceClass, interfaceName, version, group, application, annotationAttributes);
     };
 
     public static final BiFunction<Object, Field, DubboBeanSpec> DUBBO_REFERENCE_PARSER = (src, f) -> {
-        boolean isDubboService = referenceAnnotationTypes.stream().anyMatch(t -> f.getClass().getAnnotation(t) != null);
+        boolean isDubboService = referenceAnnotationTypes.stream().anyMatch(t -> f.getAnnotation(t) != null);
         if (!isDubboService) {
             return null;
         }
 
-        for (int i = 0; i < referenceAnnotationTypes.size(); i++) {
-            Annotation dubboService = f.getAnnotation(referenceAnnotationTypes.get(i));
-            if (dubboService == null) {
-                continue;
-            }
+        Class<?> clz = f.getType();
+        ReferenceAnnotationResolver referenceAnnotationResolver = new ReferenceAnnotationResolver(clz, f);
+        Annotation dubboReference = referenceAnnotationResolver.getReferenceAnnotation();
 
-            if (DubboReference.class == dubboService.annotationType()) {
-                DubboReference tmp = (DubboReference) dubboService;
-                return new DubboBeanSpec(tmp.interfaceClass(), tmp.interfaceName(), tmp.version(), tmp.group(),
-                        tmp.application(), AnnotationResolver.getAnnotationAttributes(dubboService));
-            }
-
-            if (Reference.class == dubboService.annotationType()) {
-                Reference tmp = (Reference) dubboService;
-                return new DubboBeanSpec(tmp.interfaceClass(), tmp.interfaceName(), tmp.version(), tmp.group(),
-                        tmp.application(), AnnotationResolver.getAnnotationAttributes(dubboService));
-            }
-
-            if (com.alibaba.dubbo.config.annotation.Reference.class == dubboService.annotationType()) {
-                com.alibaba.dubbo.config.annotation.Reference tmp = (com.alibaba.dubbo.config.annotation.Reference) dubboService;
-                return new DubboBeanSpec(tmp.interfaceClass(), tmp.interfaceName(), tmp.version(), tmp.group(), tmp.application(),
-                        AnnotationResolver.getAnnotationAttributes(dubboService));
-            }
+        if (dubboReference == null) {
+            return null;
         }
-        return null;
 
+        String group = referenceAnnotationResolver.resolveGroup();
+        String version = ValueUtils.getValue(referenceAnnotationResolver.resolveVersion());
+
+        AnnotationAttributes annotationAttributes = AnnotationResolver.getAnnotationAttributes(dubboReference);
+        Class<?> interfaceClass = AnnotationResolver.resolveServiceInterfaceClass(annotationAttributes, clz);
+        String interfaceName = MoreObjects.firstNonNull(interfaceClass.getName(), referenceAnnotationResolver.resolveInterfaceClassName());
+
+        String application = AnnotationUtils.getAttribute(dubboReference, "application");
+
+        return new DubboBeanSpec(interfaceClass, interfaceName, version, group, application, annotationAttributes);
     };
 }

@@ -11,7 +11,8 @@ import org.yx.consumer.DemoService;
 @Bean
 public class DefaultConsumerDemoService {
 
-    @DubboReference(version = "${demo.service.version}", url = "${demo.service.url}")
+//    @DubboReference(version = "${demo.service.version}", url = "${demo.service.url}")
+    @DubboReference(version = "${demo.service.version}")
     private DemoService demoService;
 
     public String run() {

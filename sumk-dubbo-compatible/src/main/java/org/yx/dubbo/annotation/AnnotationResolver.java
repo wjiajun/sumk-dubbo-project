@@ -4,6 +4,7 @@ package org.yx.dubbo.annotation;
 import org.apache.dubbo.common.utils.Assert;
 import org.apache.dubbo.common.utils.ClassUtils;
 import org.apache.dubbo.common.utils.StringUtils;
+import org.yx.conf.AppInfo;
 import org.yx.dubbo.utils.ObjectUtils;
 import org.yx.dubbo.utils.ReflectionUtils;
 import org.yx.util.kit.Asserts;
@@ -158,6 +159,11 @@ public class AnnotationResolver {
                 return mappedAnnotations;
             }
 
+        }
+
+        if (value instanceof String && ((String) value).contains("${")) {
+            String replace = ((String) value).replace("${", "").replace("}", "");
+            return AppInfo.getLatin(replace);
         }
 
         // Fallback

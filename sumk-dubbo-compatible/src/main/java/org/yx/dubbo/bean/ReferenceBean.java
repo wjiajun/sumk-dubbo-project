@@ -1,12 +1,21 @@
 package org.yx.dubbo.bean;
 
 import org.apache.dubbo.config.ReferenceConfig;
+import org.apache.dubbo.config.annotation.Reference;
 
 /**
  * @author : wjiajun
  * @description:
  */
 public class ReferenceBean<T> extends ReferenceConfig<T> {
+
+    public ReferenceBean() {
+        super();
+    }
+
+    public ReferenceBean(Reference reference) {
+        super(reference);
+    }
 
     public void afterPropertiesSet() {
         // lazy init by default.

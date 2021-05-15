@@ -25,7 +25,11 @@ public class DubboConfig {
             try {
                 // application
                 Map<String, String> applicationConfig = AppInfo.subMap(DubboConst.DEFAULT_NAME + "." + DubboConst.DEFAULT_APPLICATION_CONFIG_NAME + ".");
+                // register
+                Map<String, String> registerConfig = AppInfo.subMap(DubboConst.DEFAULT_NAME + "." + DubboConst.DEFAULT_REGISTRY_CONFIG_NAME + ".");
+
                 registerApplicationConfig(applicationConfig);
+                registerRegistryConfig(registerConfig);
             } catch (Exception e) {
                 Logs.rpc().info(e.getMessage(), e);
             }
@@ -37,6 +41,12 @@ public class DubboConfig {
         DubboBootstrap.getInstance().application(applicationName, (t) -> {
             t.name(applicationName);
         });
+    }
 
+    private static void registerRegistryConfig(Map<String, String> applicationConfig) {
+        String address = applicationConfig.getOrDefault("address", "N/A");// 默认不注册
+        DubboBootstrap.getInstance().registry((t) -> {
+            t.address(address);
+        });
     }
 }

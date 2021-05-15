@@ -1,10 +1,12 @@
 package org.yx.dubbo.bean;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.dubbo.common.utils.ArrayUtils;
 import org.apache.dubbo.common.utils.CollectionUtils;
 import org.apache.dubbo.common.utils.ConcurrentHashSet;
+import org.apache.dubbo.common.utils.FieldUtils;
 import org.apache.dubbo.common.utils.ReflectUtils;
 import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.dubbo.config.MethodConfig;
@@ -12,6 +14,7 @@ import org.apache.dubbo.config.MonitorConfig;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.config.annotation.Method;
+import org.apache.dubbo.config.bootstrap.DubboBootstrap;
 import org.slf4j.Logger;
 import org.yx.annotation.spec.InjectSpec;
 import org.yx.annotation.spec.Specs;
@@ -126,16 +129,19 @@ public class ServiceClassPostProcessor {
             if (parse == null) {
                 return;
             }
-            // 生成bean
-            String beanName = ResolveUtils.generateServiceBeanName(parse);
-            try {
-                beanMap.putIfAbsent(beanName, BeanRegistry.putSameBeanIfAlias(beanName, clazz));
-                serviceBeanNameSet.add(beanName);
-            } catch (Exception e) {
-                throw new SumkException(-345365, "IOC error on " + clazz, e);
-            }
-            ServiceBean serviceBean = buildServiceBean(beanMap.get(beanName), parse);
 
+            // 生成Service Impl bean
+            String beanName = BeanKit.resloveBeanName(clazz);
+            beanMap.putIfAbsent(beanName, BeanRegistry.putSameBeanIfAlias(beanName, clazz));
+            serviceBeanNameSet.add(beanName);
+
+            // 生成beanName ServiceBean
+            ServiceBean serviceBean = buildServiceBean(beanMap.get(beanName), parse);
+            String serviceBeanName = ResolveUtils.generateServiceBeanName(parse);
+            InnerIOC.putBean(serviceBeanName, serviceBean);
+
+            // 注册到DubboBootstrap
+            DubboBootstrap.getInstance().service(serviceBean);
         });
 
         beanMap.values().forEach(bean -> {
@@ -152,64 +158,74 @@ public class ServiceClassPostProcessor {
         ServiceBean<Object> serviceBean = new ServiceBean<>();
 
         List<String> ignoreAttributeNames = Lists.newArrayList("provider", "monitor", "application", "module", "registry", "protocol",
-                "interface", "interfaceName", "parameters");
-        serviceBean.setRef(obj);
+                "interface", "interfaceName", "parameters", "listener", "methods", "filter");
 
         Map<String, Field> referenceBeanFieldMap = ReflectUtils.getBeanPropertyFields(ServiceBean.class);
 
         AnnotationAttributes annotationAttributes = dubboBeanSpec.getAnnotationAttributes();
 
-        referenceBeanFieldMap.keySet().stream()
-                .filter(f -> !ignoreAttributeNames.contains(f))
-                .forEach(f -> {
-                    try {
-                        Field field = ReferenceBean.class.getField(f);
-                        boolean accessible = field.isAccessible();
-                        field.setAccessible(true);
-
-                        Object o = annotationAttributes.get(f);
-
-                        field.set(serviceBean, o);
-                        field.setAccessible(accessible);
-                    } catch (Exception e) {
-                        throw new SumkException(-345365, "ReferenceBeanBuilder preConfigureBean", e);
-                    }
-                });
+//        referenceBeanFieldMap.keySet().stream()
+//                .filter(f -> !ignoreAttributeNames.contains(f))
+//                .forEach(f -> {
+//                    try {
+//                        Field field = FieldUtils.findField(ServiceBean.class, f);
+//                        boolean accessible = field.isAccessible();
+//                        field.setAccessible(true);
+//
+//                        Object o = annotationAttributes.get(f);
+//
+//                        field.set(serviceBean, o);
+//                        field.setAccessible(accessible);
+//                    } catch (Exception e) {
+//                        throw new SumkException(-345365, "ReferenceBeanBuilder preConfigureBean", e);
+//                    }
+//                });
+        serviceBean.setRef(obj);
         serviceBean.setInterface(interfaceClass);
-        serviceBean.setParameters(convertParameters(annotationAttributes.getStringArray("parameters")));
+        serviceBean.setParameters(ResolveUtils.convertParameters(annotationAttributes.getStringArray("parameters")));
         List<MethodConfig> methodConfigs = convertMethodConfigs(annotationAttributes.get("methods"));
-        if(CollectionUtils.isNotEmpty(methodConfigs)) {
+        if (CollectionUtils.isNotEmpty(methodConfigs)) {
             serviceBean.setMethods(methodConfigs);
         }
 
         String providerConfigBeanName = annotationAttributes.getString("provider");
-        if(StringUtils.isNoneEmpty(providerConfigBeanName)) {
+        if (StringUtils.isNoneEmpty(providerConfigBeanName)) {
             serviceBean.setProvider(IOC.get(providerConfigBeanName));
         }
 
 
         String monitorConfigBeanName = annotationAttributes.getString("monitor");
-        if(StringUtils.isNoneEmpty(monitorConfigBeanName)) {
-            serviceBean.setMonitor((MonitorConfig)IOC.get(monitorConfigBeanName));
+        if (StringUtils.isNoneEmpty(monitorConfigBeanName)) {
+            serviceBean.setMonitor((MonitorConfig) IOC.get(monitorConfigBeanName));
         }
 
         String applicationConfigBeanName = annotationAttributes.getString("application");
-        if(StringUtils.isNoneEmpty(applicationConfigBeanName)) {
+        if (StringUtils.isNoneEmpty(applicationConfigBeanName)) {
             serviceBean.setApplication(IOC.get(applicationConfigBeanName));
         }
 
         String moduleConfigBeanName = annotationAttributes.getString("module");
-        if(StringUtils.isNoneEmpty(moduleConfigBeanName)) {
+        if (StringUtils.isNoneEmpty(moduleConfigBeanName)) {
             serviceBean.setModule(IOC.get(moduleConfigBeanName));
         }
 
         String[] registryConfigBeanNames = annotationAttributes.getStringArray("registry");
-        if(ArrayUtils.isNotEmpty(registryConfigBeanNames)) {
+        if (ArrayUtils.isNotEmpty(registryConfigBeanNames)) {
             serviceBean.setRegistries(BeanRegistry.getBeans(registryConfigBeanNames, RegistryConfig.class));
         }
 
+        String[] listenerBeanNames = annotationAttributes.getStringArray("listener");
+        if (ArrayUtils.isNotEmpty(listenerBeanNames)) {
+            serviceBean.setListener(Iterables.getFirst(Lists.newArrayList(listenerBeanNames), StringUtils.EMPTY_STRING));
+        }
+
+        String[] filterBeanNames = annotationAttributes.getStringArray("filter");
+        if (ArrayUtils.isNotEmpty(filterBeanNames)) {
+            serviceBean.setFilter(Iterables.getFirst(Lists.newArrayList(filterBeanNames), StringUtils.EMPTY_STRING));
+        }
+
         String[] protocolConfigBeanNames = annotationAttributes.getStringArray("protocol");
-        if(ArrayUtils.isNotEmpty(protocolConfigBeanNames)) {
+        if (ArrayUtils.isNotEmpty(protocolConfigBeanNames)) {
             serviceBean.setProtocols(BeanRegistry.getBeans(protocolConfigBeanNames, ProtocolConfig.class));
         }
 
@@ -308,22 +324,6 @@ public class ServiceClassPostProcessor {
             }
         }
         return IOC.get(clz);
-    }
-
-    private static Map<String, String> convertParameters(String[] parameters) {
-        if (ArrayUtils.isEmpty(parameters)) {
-            return null;
-        }
-
-        if (parameters.length % 2 != 0) {
-            throw new IllegalArgumentException("parameter attribute must be paired with key followed by value");
-        }
-
-        Map<String, String> map = new HashMap<>();
-        for (int i = 0; i < parameters.length; i += 2) {
-            map.put(parameters[i], parameters[i + 1]);
-        }
-        return map;
     }
 
     private static List<MethodConfig> convertMethodConfigs(Object methodsAnnotation) {

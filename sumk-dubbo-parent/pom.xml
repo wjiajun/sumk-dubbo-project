@@ -22,6 +22,7 @@
         <sumk.version>2.9.11</sumk.version>
         <guava.version>18.0</guava.version>
         <dubbo.version>${revision}</dubbo.version>
+        <dubbo-zookeeper.version>${reference}</dubbo-zookeeper.version>
         <!-- Build args -->
         <argline>-server -Xms256m -Xmx512m -Dfile.encoding=UTF-8 -Djava.net.preferIPv4Stack=true
         </argline>
@@ -88,6 +89,16 @@
                 <version>${guava.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-registry-zookeeper</artifactId>
+                <version>${dubbo-zookeeper.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-configcenter-zookeeper</artifactId>
+                <version>${dubbo-zookeeper.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

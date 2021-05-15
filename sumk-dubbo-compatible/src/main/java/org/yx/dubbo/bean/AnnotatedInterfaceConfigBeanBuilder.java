@@ -57,6 +57,8 @@ public abstract class AnnotatedInterfaceConfigBeanBuilder<C extends AbstractInte
 
         preConfigureBean(dubboBeanSpec, configBean);
 
+        configureParametersConfig(dubboBeanSpec, configBean);
+
         configureRegistryConfigs(configBean);
 
         configureMonitorConfig(configBean);
@@ -70,6 +72,8 @@ public abstract class AnnotatedInterfaceConfigBeanBuilder<C extends AbstractInte
     }
 
     protected abstract void preConfigureBean(DubboBeanSpec dubboBeanSpec, C configBean) throws Exception;
+
+    protected abstract void configureParametersConfig(DubboBeanSpec dubboBeanSpec, C referenceBean);
 
 
     private void configureRegistryConfigs(C configBean) {
