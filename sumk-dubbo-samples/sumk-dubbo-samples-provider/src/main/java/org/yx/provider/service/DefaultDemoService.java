@@ -9,7 +9,7 @@ import org.yx.provider.sumk.bean.DemoBeanService;
  * @author : wjiajun
  * @description:
  */
-@DubboService(version = "${demo.service.version}")
+@DubboService(version = "1.0.0")
 public class DefaultDemoService implements DemoService {
 
     @Inject

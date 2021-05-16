@@ -12,10 +12,8 @@ import org.yx.dubbo.utils.ResolveUtils;
 import org.yx.main.StartContext;
 
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 
 /**
  * @author : wjiajun
@@ -32,25 +30,7 @@ public class ReferenceBeanPostProcessor {
             return;
         }
 
-        // 获取Dubbo Service Bean
-//        List<Object> serviceBeanList = ServiceClassPostProcessor.getServiceBeanNameSet()
-//                .stream()
-//                .map(IOC::get)
-//                .filter(Objects::nonNull)
-//                .collect(Collectors.toList());
-
-
-//        InnerIOC.beans().forEach(bean -> {
-//            DubboBeanSpec parse = SpecParsers.parse(bean.getClass(), DubboBuiltIn.DUBBO_PARSER);
-//            if (parse == null) {
-//                return;
-//            }
-//            try {
-//                injectProperties(bean);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        });
+        // 由于plugin只能最后执行，所以服务提前注入，统一最后注入
         InnerIOC.beans().forEach(bean -> {
             try {
                 injectProperties(bean);
@@ -71,7 +51,7 @@ public class ReferenceBeanPostProcessor {
 
         String serviceBeanName = ResolveUtils.generateServiceBeanName(referenceSpec);
 
-        ReferenceBean<?> referenceBean = buildReferenceBeanIfAbsent(referenceSpec, f.getType());
+        ReferenceBean<?> referenceBean = buildReferenceBeanIfAbsent(referenceSpec, f);
 
         boolean localServiceBean = isLocalServiceBean(serviceBeanName, referenceBean, referenceSpec);
         prepareReferenceBean(serviceBeanName, referenceBean, localServiceBean);
@@ -99,8 +79,10 @@ public class ReferenceBeanPostProcessor {
         return remote;
     }
 
-    private static ReferenceBean<?> buildReferenceBeanIfAbsent(DubboBeanSpec referenceSpec, Class<?> referencedType)
+    private static ReferenceBean<?> buildReferenceBeanIfAbsent(DubboBeanSpec referenceSpec, Field referencedField)
             throws Exception {
+
+        Class<?> referencedType = referencedField.getType();
 
         String referenceBeanName = ResolveUtils.generateReferenceBeanName(referenceSpec);
 

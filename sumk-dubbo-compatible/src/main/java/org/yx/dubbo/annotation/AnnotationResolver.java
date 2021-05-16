@@ -85,7 +85,7 @@ public class AnnotationResolver {
     static AnnotationAttributes retrieveAnnotationAttributes(Annotation annotation) {
 
         Class<? extends Annotation> annotationType = annotation.annotationType();
-        AnnotationAttributes attributes = new AnnotationAttributes(annotationType);
+        AnnotationAttributes attributes = new AnnotationAttributes(annotation);
 
         for (Method method : getAttributeMethods(annotationType)) {
             try {

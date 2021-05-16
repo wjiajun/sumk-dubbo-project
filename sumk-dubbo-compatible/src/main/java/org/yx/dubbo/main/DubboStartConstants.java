@@ -13,6 +13,4 @@ public class DubboStartConstants extends StartConstants {
 
     public static final String[] DUBBO_PACKAGES = {"dubbo.scan.base-packages", "dubbo.scan.basePackages"};
 
-
-
 }

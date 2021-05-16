@@ -17,6 +17,8 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 
 	private final String displayName;
 
+	private final Annotation annotation;
+
 	boolean validated = false;
 
 
@@ -25,46 +27,22 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 	 */
 	public AnnotationAttributes() {
 		this.annotationType = null;
-		this.displayName = UNKNOWN;
-	}
-
-	/**
-	 * Create a new, empty {@link AnnotationAttributes} instance with the
-	 * given initial capacity to optimize performance.
-	 * @param initialCapacity initial size of the underlying map
-	 */
-	public AnnotationAttributes(int initialCapacity) {
-		super(initialCapacity);
-		this.annotationType = null;
+		this.annotation = null;
 		this.displayName = UNKNOWN;
 	}
 
 	/**
 	 * Create a new, empty {@link AnnotationAttributes} instance for the
 	 * specified {@code annotationType}.
-	 * @param annotationType the type of annotation represented by this
+	 * @param annotation the type of annotation represented by this
 	 * {@code AnnotationAttributes} instance; never {@code null}
 	 * @since 4.2
 	 */
-	public AnnotationAttributes(Class<? extends Annotation> annotationType) {
-		Assert.notNull(annotationType, "'annotationType' must not be null");
-		this.annotationType = annotationType;
+	public AnnotationAttributes(Annotation annotation) {
+		Assert.notNull(annotation.annotationType(), "'annotationType' must not be null");
+		this.annotation = annotation;
+		this.annotationType = annotation.annotationType();
 		this.displayName = annotationType.getName();
-	}
-
-	/**
-	 * Create a new, empty {@link AnnotationAttributes} instance for the
-	 * specified {@code annotationType}.
-	 * @param annotationType the annotation type name represented by this
-	 * {@code AnnotationAttributes} instance; never {@code null}
-	 * @param classLoader the ClassLoader to try to load the annotation type on,
-	 * or {@code null} to just store the annotation type name
-	 * @since 4.3.2
-	 */
-	public AnnotationAttributes(String annotationType, ClassLoader classLoader) {
-		Assert.notNull(annotationType, "'annotationType' must not be null");
-		this.annotationType = getAnnotationType(annotationType, classLoader);
-		this.displayName = annotationType;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -89,31 +67,17 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 	public AnnotationAttributes(Map<String, Object> map) {
 		super(map);
 		this.annotationType = null;
+		this.annotation = null;
 		this.displayName = UNKNOWN;
 	}
 
-	/**
-	 * Create a new {@link AnnotationAttributes} instance, wrapping the provided
-	 * map and all its <em>key-value</em> pairs.
-	 * @param other original source of annotation attribute <em>key-value</em> pairs
-	 * @see #fromMap(Map)
-	 */
-	public AnnotationAttributes(AnnotationAttributes other) {
-		super(other);
-		this.annotationType = other.annotationType;
-		this.displayName = other.displayName;
-		this.validated = other.validated;
-	}
 
-
-	/**
-	 * Get the type of annotation represented by this
-	 * {@code AnnotationAttributes} instance.
-	 * @return the annotation type, or {@code null} if unknown
-	 * @since 4.2
-	 */
 	public Class<? extends Annotation> annotationType() {
 		return this.annotationType;
+	}
+
+	public Annotation annotation() {
+		return this.annotation;
 	}
 
 	/**

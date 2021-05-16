@@ -12,7 +12,7 @@ import org.yx.consumer.DemoService;
 public class DefaultConsumerDemoService {
 
 //    @DubboReference(version = "${demo.service.version}", url = "${demo.service.url}")
-    @DubboReference(version = "${demo.service.version}")
+    @DubboReference(version = "1.0.0")
     private DemoService demoService;
 
     public String run() {

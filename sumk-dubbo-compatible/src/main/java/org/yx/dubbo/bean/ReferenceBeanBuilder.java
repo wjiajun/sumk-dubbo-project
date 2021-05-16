@@ -24,11 +24,6 @@ import java.util.Map;
 
 class ReferenceBeanBuilder extends AnnotatedInterfaceConfigBeanBuilder<ReferenceBean> {
 
-    // Ignore those fields
-    static final String[] IGNORE_FIELD_NAMES = new String[]{"application", "module", "consumer", "monitor",
-            "registry", "filter", "listener", "parameters", "providedBy", "methods", "services", "generic", "serviceMetadata",
-            "repository", "injvm"};
-
     private ReferenceBeanBuilder(DubboBeanSpec dubboBeanSpec) {
         super(dubboBeanSpec);
     }
@@ -76,7 +71,7 @@ class ReferenceBeanBuilder extends AnnotatedInterfaceConfigBeanBuilder<Reference
 
     @Override
     protected ReferenceBean doBuild() {
-        return new ReferenceBean<Object>();
+        return ReferenceBeanFactory.create(dubboBeanSpec.getAnnotationAttributes().annotation());
     }
 
     @Override
@@ -84,10 +79,11 @@ class ReferenceBeanBuilder extends AnnotatedInterfaceConfigBeanBuilder<Reference
         Assert.notNull(interfaceClass, "The interface class must set first!");
 
         // Bind annotation attributes
-        List<String> ignoreFields = CollectionUtil.unmodifyList(IGNORE_FIELD_NAMES);
-
-        Map<String, Field> referenceBeanFieldMap = ReflectUtils.getBeanPropertyFields(referenceBean.getClass());
-
+        // 改为构造器绑定
+//        List<String> ignoreFields = CollectionUtil.unmodifyList(IGNORE_FIELD_NAMES);
+//
+//        Map<String, Field> referenceBeanFieldMap = ReflectUtils.getBeanPropertyFields(referenceBean.getClass());
+//
 //        referenceBeanFieldMap.keySet().stream()
 //                .filter(f -> !ignoreFields.contains(f))
 //                .forEach(f -> {

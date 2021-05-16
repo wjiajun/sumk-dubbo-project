@@ -29,8 +29,6 @@ public class SumkExtensionFactory implements ExtensionFactory {
             return bean;
         }
 
-        //logger.warn("No spring extension (bean) named:" + name + ", try to find an extension (bean) of type " + type.getName());
-
         return null;
     }
 }

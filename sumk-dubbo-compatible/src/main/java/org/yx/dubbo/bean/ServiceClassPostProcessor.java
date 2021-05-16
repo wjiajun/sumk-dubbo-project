@@ -1,13 +1,9 @@
 package org.yx.dubbo.bean;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.dubbo.common.utils.ArrayUtils;
 import org.apache.dubbo.common.utils.CollectionUtils;
 import org.apache.dubbo.common.utils.ConcurrentHashSet;
-import org.apache.dubbo.common.utils.FieldUtils;
-import org.apache.dubbo.common.utils.ReflectUtils;
 import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.dubbo.config.MethodConfig;
 import org.apache.dubbo.config.MonitorConfig;
@@ -46,9 +42,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
@@ -155,31 +149,10 @@ public class ServiceClassPostProcessor {
 
     private static ServiceBean buildServiceBean(Object obj, DubboBeanSpec dubboBeanSpec) {
         Class<?> interfaceClass = dubboBeanSpec.getInterfaceClass();
-        ServiceBean<Object> serviceBean = new ServiceBean<>();
-
-        List<String> ignoreAttributeNames = Lists.newArrayList("provider", "monitor", "application", "module", "registry", "protocol",
-                "interface", "interfaceName", "parameters", "listener", "methods", "filter");
-
-        Map<String, Field> referenceBeanFieldMap = ReflectUtils.getBeanPropertyFields(ServiceBean.class);
+        ServiceBean serviceBean = ServiceBeanFactory.create(dubboBeanSpec.getAnnotationAttributes().annotation());
 
         AnnotationAttributes annotationAttributes = dubboBeanSpec.getAnnotationAttributes();
 
-//        referenceBeanFieldMap.keySet().stream()
-//                .filter(f -> !ignoreAttributeNames.contains(f))
-//                .forEach(f -> {
-//                    try {
-//                        Field field = FieldUtils.findField(ServiceBean.class, f);
-//                        boolean accessible = field.isAccessible();
-//                        field.setAccessible(true);
-//
-//                        Object o = annotationAttributes.get(f);
-//
-//                        field.set(serviceBean, o);
-//                        field.setAccessible(accessible);
-//                    } catch (Exception e) {
-//                        throw new SumkException(-345365, "ReferenceBeanBuilder preConfigureBean", e);
-//                    }
-//                });
         serviceBean.setRef(obj);
         serviceBean.setInterface(interfaceClass);
         serviceBean.setParameters(ResolveUtils.convertParameters(annotationAttributes.getStringArray("parameters")));
@@ -212,16 +185,6 @@ public class ServiceClassPostProcessor {
         String[] registryConfigBeanNames = annotationAttributes.getStringArray("registry");
         if (ArrayUtils.isNotEmpty(registryConfigBeanNames)) {
             serviceBean.setRegistries(BeanRegistry.getBeans(registryConfigBeanNames, RegistryConfig.class));
-        }
-
-        String[] listenerBeanNames = annotationAttributes.getStringArray("listener");
-        if (ArrayUtils.isNotEmpty(listenerBeanNames)) {
-            serviceBean.setListener(Iterables.getFirst(Lists.newArrayList(listenerBeanNames), StringUtils.EMPTY_STRING));
-        }
-
-        String[] filterBeanNames = annotationAttributes.getStringArray("filter");
-        if (ArrayUtils.isNotEmpty(filterBeanNames)) {
-            serviceBean.setFilter(Iterables.getFirst(Lists.newArrayList(filterBeanNames), StringUtils.EMPTY_STRING));
         }
 
         String[] protocolConfigBeanNames = annotationAttributes.getStringArray("protocol");
