@@ -15,7 +15,7 @@ import org.yx.main.SumkServer;
 public class DubboConsumerBoostrap {
 
     public static void main(String[] args) {
-        Log.setLogType(LogType.console);//因为没有引入日志包，才写的临时代码
+        Log.setLogType(LogType.slf4j);//因为没有引入日志包，才写的临时代码
         long begin=System.currentTimeMillis();
         SumkServer.start(StartConstants.NOHTTP, DubboStartConstants.ENABLE_DUBBO);
         System.out.println("启动完成,除zookeeper服务器外耗时："+(System.currentTimeMillis()-begin)+"毫秒");

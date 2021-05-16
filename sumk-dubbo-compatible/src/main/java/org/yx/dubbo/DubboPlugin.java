@@ -47,15 +47,10 @@ public class DubboPlugin implements Plugin {
 
     @Override
     public void prepare() {
-        // todo 找出所有dubbo注解注入smuk down
-        // todo 配置变更监听 down
-        // todo 创建容器销毁事件listener down
-        // todo 加载Dubbo 注解
     }
 
     @Override
     public void afterStarted() {
-
     }
 
     @Override
