@@ -4,7 +4,6 @@ import org.apache.dubbo.config.bootstrap.DubboBootstrap;
 import org.slf4j.Logger;
 import org.yx.annotation.Bean;
 import org.yx.dubbo.listener.event.DubboCloseEvent;
-import org.yx.dubbo.listener.event.DubboStartEvent;
 import org.yx.dubbo.main.DubboStartConstants;
 import org.yx.listener.SumkEvent;
 import org.yx.log.Logs;
@@ -23,6 +22,7 @@ public class DubboCloseListener implements DubboEventListener {
 				|| Objects.equals(StartContext.inst().get(DubboStartConstants.ENABLE_DUBBO), false)) {
 			return;
 		}
+
 		if(ev instanceof DubboCloseEvent) {
 			logger.info("dubbo plugin dubboBootstrap is closing....");
 			DubboBootstrap dubboBootstrap = DubboBootstrap.getInstance();

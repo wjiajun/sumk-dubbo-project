@@ -1,11 +1,23 @@
 package org.yx.dubbo.config;
 
+import org.apache.dubbo.common.config.Environment;
+import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.dubbo.config.bootstrap.DubboBootstrap;
+import org.apache.dubbo.config.context.ConfigManager;
+import org.apache.dubbo.rpc.model.ApplicationModel;
+import org.yx.conf.AppConfig;
 import org.yx.conf.AppInfo;
 import org.yx.dubbo.main.DubboStartConstants;
 import org.yx.log.Logs;
+import org.yx.log.RawLog;
 import org.yx.main.StartContext;
+import org.yx.util.CollectionUtil;
+import org.yx.util.IOUtil;
+import org.yx.util.StringUtil;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -23,30 +35,23 @@ public class DubboConfig {
         }
         AppInfo.addObserver(info -> {
             try {
-                // application
-                Map<String, String> applicationConfig = AppInfo.subMap(DubboConst.DEFAULT_NAME + "." + DubboConst.DEFAULT_APPLICATION_CONFIG_NAME + ".");
-                // register
-                Map<String, String> registerConfig = AppInfo.subMap(DubboConst.DEFAULT_NAME + "." + DubboConst.DEFAULT_REGISTRY_CONFIG_NAME + ".");
+                // dubbo app外部配置定时刷新（非配置中心）
+                DubboBootstrap dubboBootstrap = DubboBootstrap.getInstance();// 确保启动类初始化
 
-                registerApplicationConfig(applicationConfig);
-                registerRegistryConfig(registerConfig);
+                ConfigManager configManager = ApplicationModel.getConfigManager();
+                Environment environment = ApplicationModel.getEnvironment();
+
+                environment.updateAppExternalConfigurationMap(AppInfo.subMap(StringUtils.EMPTY_STRING));
+
+                // 首次不需要refresh
+                if(dubboBootstrap.isStarted()) {
+                    configManager.refreshAll();
+                }
+
             } catch (Exception e) {
                 Logs.rpc().info(e.getMessage(), e);
             }
         });
     }
 
-    private static void registerApplicationConfig(Map<String, String> applicationConfig) {
-        String applicationName = applicationConfig.getOrDefault("name", "application");
-        DubboBootstrap.getInstance().application(applicationName, (t) -> {
-            t.name(applicationName);
-        });
-    }
-
-    private static void registerRegistryConfig(Map<String, String> applicationConfig) {
-        String address = applicationConfig.getOrDefault("address", "N/A");// 默认不注册
-        DubboBootstrap.getInstance().registry((t) -> {
-            t.address(address);
-        });
-    }
 }
