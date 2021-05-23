@@ -1,6 +1,5 @@
 package org.yx.dubbo.utils;
 
-import com.sun.istack.internal.Nullable;
 import org.yx.conf.AppInfo;
 
 import java.util.StringJoiner;
@@ -16,7 +15,7 @@ public class ValueUtils {
         return AppInfo.getLatin(replace, "");
     }
 
-    public static String arrayToDelimitedString(@Nullable Object[] arr, String delim) {
+    public static String arrayToDelimitedString(Object[] arr, String delim) {
         if (ObjectUtils.isEmpty(arr)) {
             return "";
         }

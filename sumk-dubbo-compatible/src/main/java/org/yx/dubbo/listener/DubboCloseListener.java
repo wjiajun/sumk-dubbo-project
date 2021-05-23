@@ -3,8 +3,8 @@ package org.yx.dubbo.listener;
 import org.apache.dubbo.config.bootstrap.DubboBootstrap;
 import org.slf4j.Logger;
 import org.yx.annotation.Bean;
+import org.yx.dubbo.config.DubboConst;
 import org.yx.dubbo.listener.event.DubboCloseEvent;
-import org.yx.dubbo.main.DubboStartConstants;
 import org.yx.listener.SumkEvent;
 import org.yx.log.Logs;
 import org.yx.main.StartContext;
@@ -18,8 +18,8 @@ public class DubboCloseListener implements DubboEventListener {
 
 	@Override
 	public void listen(SumkEvent ev) {
-		if (StartContext.inst().get(DubboStartConstants.ENABLE_DUBBO) == null
-				|| Objects.equals(StartContext.inst().get(DubboStartConstants.ENABLE_DUBBO), false)) {
+		if (StartContext.inst().get(DubboConst.ENABLE_DUBBO) == null
+				|| Objects.equals(StartContext.inst().get(DubboConst.ENABLE_DUBBO), false)) {
 			return;
 		}
 

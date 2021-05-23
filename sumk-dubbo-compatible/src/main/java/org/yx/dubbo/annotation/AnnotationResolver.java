@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AnnotationResolver {
 
     private static final Map<Class<? extends Annotation>, List<Method>> attributeMethodsCache =
-            new ConcurrentHashMap<Class<? extends Annotation>, List<Method>>(256);
+            new ConcurrentHashMap<>(256);
 
     public static AnnotationAttributes getAnnotationAttributes(Annotation annotation) {
         AnnotationAttributes attributes =

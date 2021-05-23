@@ -5,13 +5,15 @@ import org.yx.annotation.spec.parse.SpecParsers;
 import org.yx.bean.IOC;
 import org.yx.bean.InnerIOC;
 import org.yx.bean.Loader;
-import org.yx.dubbo.main.DubboStartConstants;
+import org.yx.dubbo.config.DubboConst;
 import org.yx.dubbo.spec.DubboBeanSpec;
 import org.yx.dubbo.spec.DubboBuiltIn;
 import org.yx.dubbo.utils.ResolveUtils;
 import org.yx.main.StartContext;
+import org.yx.util.S;
 
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 
@@ -25,8 +27,8 @@ public class ReferenceBeanPostProcessor {
     private static ConcurrentMap<String, ReferenceBean<?>> referenceBeanCache = Maps.newConcurrentMap();
 
     public static synchronized void init() {
-        if (StartContext.inst().get(DubboStartConstants.ENABLE_DUBBO) == null
-                || Objects.equals(StartContext.inst().get(DubboStartConstants.ENABLE_DUBBO), false)) {
+        if (StartContext.inst().get(DubboConst.ENABLE_DUBBO) == null
+                || Objects.equals(StartContext.inst().get(DubboConst.ENABLE_DUBBO), false)) {
             return;
         }
 
@@ -61,12 +63,14 @@ public class ReferenceBeanPostProcessor {
         return referenceBean.get();
     }
 
-    private static void registerReferenceBean(ReferenceBean referenceBean, DubboBeanSpec referenceSpec) {
+    private static void registerReferenceBean(ReferenceBean referenceBean, DubboBeanSpec referenceSpec) throws Exception {
 
         String referenceBeanName = ResolveUtils.generateReferenceBeanName(referenceSpec);
 
-        if (IOC.get(referenceBeanName) == null) {
-            InnerIOC.putBean(referenceBeanName, referenceBean);
+        // 防止=被被截取
+        String referenceBeanMD5Name = S.hash().digestByteToString(referenceBeanName.getBytes(StandardCharsets.UTF_8));
+        if (IOC.get(referenceBeanMD5Name) == null) {
+            InnerIOC.putBean(referenceBeanMD5Name, referenceBean);
         }
     }
 
@@ -86,7 +90,8 @@ public class ReferenceBeanPostProcessor {
 
         String referenceBeanName = ResolveUtils.generateReferenceBeanName(referenceSpec);
 
-        ReferenceBean<?> referenceBean = referenceBeanCache.get(referenceBeanName);
+        String referenceBeanMD5Name = S.hash().digestByteToString(referenceBeanName.getBytes(StandardCharsets.UTF_8));
+        ReferenceBean<?> referenceBean = referenceBeanCache.get(referenceBeanMD5Name);
 
         // 然后，如果不存在，则进行创建。然后，添加到 referenceBeanCache 缓存中。
         if (referenceBean == null) {
@@ -94,7 +99,7 @@ public class ReferenceBeanPostProcessor {
                     .create(referenceSpec)
                     .interfaceClass(referencedType);
             referenceBean = beanBuilder.build();
-            referenceBeanCache.put(referenceBeanName, referenceBean);
+            referenceBeanCache.put(referenceBeanMD5Name, referenceBean);
         } else if (!referencedType.isAssignableFrom(referenceBean.getInterfaceClass())) {
             throw new IllegalArgumentException("reference bean name " + referenceBeanName + " has been duplicated, but interfaceClass " +
                     referenceBean.getInterfaceClass().getName() + " cannot be assigned to " + referencedType.getName());

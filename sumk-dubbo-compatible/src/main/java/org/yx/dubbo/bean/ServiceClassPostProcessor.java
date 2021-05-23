@@ -23,8 +23,8 @@ import org.yx.common.scaner.ClassScaner;
 import org.yx.conf.AppInfo;
 import org.yx.conf.Const;
 import org.yx.dubbo.annotation.AnnotationAttributes;
+import org.yx.dubbo.config.DubboConst;
 import org.yx.dubbo.ioc.BeanRegistry;
-import org.yx.dubbo.main.DubboStartConstants;
 import org.yx.dubbo.spec.DubboBeanSpec;
 import org.yx.dubbo.spec.DubboBuiltIn;
 import org.yx.dubbo.utils.ResolveUtils;
@@ -55,6 +55,8 @@ import java.util.stream.Collectors;
  */
 public class ServiceClassPostProcessor {
 
+    private static final String[] DUBBO_PACKAGES = {"dubbo.scan.base-packages", "dubbo.scan.basePackages"};
+
     private static final Logger logger = Logs.ioc();
 
     /**
@@ -63,12 +65,12 @@ public class ServiceClassPostProcessor {
     private static ConcurrentHashSet<String> serviceBeanNameSet;
 
     public static synchronized void init() {
-        if (StartContext.inst().get(DubboStartConstants.ENABLE_DUBBO) == null
-                || Objects.equals(StartContext.inst().get(DubboStartConstants.ENABLE_DUBBO), false)) {
+        if (StartContext.inst().get(DubboConst.ENABLE_DUBBO) == null
+                || Objects.equals(StartContext.inst().get(DubboConst.ENABLE_DUBBO), false)) {
             return;
         }
 
-        List<String> dubboPackageNames = Arrays.stream(DubboStartConstants.DUBBO_PACKAGES)
+        List<String> dubboPackageNames = Arrays.stream(DUBBO_PACKAGES)
                 .map(AppInfo::getLatin)
                 .filter(StringUtil::isNotEmpty)
                 .map(i -> StringUtil.splitAndTrim(i, Const.COMMA, Const.SEMICOLON))

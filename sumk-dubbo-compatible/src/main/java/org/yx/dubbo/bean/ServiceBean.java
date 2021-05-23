@@ -58,11 +58,6 @@ public class ServiceBean<T> extends ServiceConfig<T> {
         this.beanName = name;
     }
 
-    /**
-     * Gets associated {@link Service}
-     *
-     * @return associated {@link Service}
-     */
     public Service getService() {
         return service;
     }
@@ -75,20 +70,11 @@ public class ServiceBean<T> extends ServiceConfig<T> {
         }
     }
 
-    /**
-     * Get the name of {@link org.apache.dubbo.config.spring.ServiceBean}
-     *
-     * @return {@link org.apache.dubbo.config.spring.ServiceBean}'s name
-     * @since 2.6.5
-     */
     @Parameter(excluded = true)
     public String getBeanName() {
         return this.beanName;
     }
 
-    /**
-     * @since 2.6.5
-     */
     @Override
     public void exported() {
         super.exported();

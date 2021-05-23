@@ -5,20 +5,10 @@ import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.dubbo.config.bootstrap.DubboBootstrap;
 import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.model.ApplicationModel;
-import org.yx.conf.AppConfig;
 import org.yx.conf.AppInfo;
-import org.yx.dubbo.main.DubboStartConstants;
 import org.yx.log.Logs;
-import org.yx.log.RawLog;
 import org.yx.main.StartContext;
-import org.yx.util.CollectionUtil;
-import org.yx.util.IOUtil;
-import org.yx.util.StringUtil;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -29,8 +19,8 @@ import java.util.Objects;
 public class DubboConfig {
 
     public static synchronized void init() {
-        if (StartContext.inst().get(DubboStartConstants.ENABLE_DUBBO) == null
-                || Objects.equals(StartContext.inst().get(DubboStartConstants.ENABLE_DUBBO), false)) {
+        if (StartContext.inst().get(DubboConst.ENABLE_DUBBO) == null
+                || Objects.equals(StartContext.inst().get(DubboConst.ENABLE_DUBBO), false)) {
             return;
         }
         AppInfo.addObserver(info -> {

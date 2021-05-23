@@ -80,12 +80,9 @@ class ReferenceBeanBuilder extends AnnotatedInterfaceConfigBeanBuilder<Reference
 
         // Bind annotation attributes
         // 改为构造器绑定
-//        List<String> ignoreFields = CollectionUtil.unmodifyList(IGNORE_FIELD_NAMES);
-//
 //        Map<String, Field> referenceBeanFieldMap = ReflectUtils.getBeanPropertyFields(referenceBean.getClass());
 //
 //        referenceBeanFieldMap.keySet().stream()
-//                .filter(f -> !ignoreFields.contains(f))
 //                .forEach(f -> {
 //                    AnnotationAttributes annotationAttributes = dubboBeanSpec.getAnnotationAttributes();
 //                    try {
