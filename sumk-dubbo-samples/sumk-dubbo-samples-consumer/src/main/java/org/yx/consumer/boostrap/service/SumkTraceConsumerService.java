@@ -11,7 +11,6 @@ import java.util.Map;
 
 /**
  * @author : wjiajun
- * @description:
  */
 @Bean
 public class SumkTraceConsumerService {

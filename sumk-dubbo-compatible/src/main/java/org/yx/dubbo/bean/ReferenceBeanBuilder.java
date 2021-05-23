@@ -1,10 +1,7 @@
 package org.yx.dubbo.bean;
 
 import com.google.common.collect.Iterables;
-import org.apache.dubbo.common.utils.ArrayUtils;
 import org.apache.dubbo.common.utils.Assert;
-import org.apache.dubbo.common.utils.FieldUtils;
-import org.apache.dubbo.common.utils.ReflectUtils;
 import org.apache.dubbo.config.ConsumerConfig;
 import org.apache.dubbo.config.MethodConfig;
 import org.apache.dubbo.config.annotation.Method;
@@ -13,14 +10,9 @@ import org.yx.dubbo.annotation.AnnotationAttributes;
 import org.yx.dubbo.annotation.AnnotationResolver;
 import org.yx.dubbo.spec.DubboBeanSpec;
 import org.yx.dubbo.utils.ResolveUtils;
-import org.yx.exception.SumkException;
-import org.yx.util.CollectionUtil;
 import org.yx.util.kit.Asserts;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 class ReferenceBeanBuilder extends AnnotatedInterfaceConfigBeanBuilder<ReferenceBean> {
 
@@ -80,24 +72,6 @@ class ReferenceBeanBuilder extends AnnotatedInterfaceConfigBeanBuilder<Reference
 
         // Bind annotation attributes
         // 改为构造器绑定
-//        Map<String, Field> referenceBeanFieldMap = ReflectUtils.getBeanPropertyFields(referenceBean.getClass());
-//
-//        referenceBeanFieldMap.keySet().stream()
-//                .forEach(f -> {
-//                    AnnotationAttributes annotationAttributes = dubboBeanSpec.getAnnotationAttributes();
-//                    try {
-//                        Field field = FieldUtils.findField(referenceBean, f);
-//                        boolean accessible = field.isAccessible();
-//                        field.setAccessible(true);
-//
-//                        Object o = annotationAttributes.get(f);
-//
-//                        field.set(referenceBean, o);
-//                        field.setAccessible(accessible);
-//                    } catch (Exception e) {
-//                        throw new SumkException(-345365, "ReferenceBeanBuilder preConfigureBean", e);
-//                    }
-//                });
     }
 
     @Override

@@ -5,7 +5,6 @@ import org.yx.consumer.DemoService;
 
 /**
  * @author : wjiajun
- * @description:
  */
 @DubboService(version = "1.0.0")
 public class InjvmService implements DemoService {

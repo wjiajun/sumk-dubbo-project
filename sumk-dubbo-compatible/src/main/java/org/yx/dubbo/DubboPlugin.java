@@ -18,7 +18,6 @@ import java.util.Objects;
 
 /**
  * @author : wjiajun
- * @description:
  */
 @Bean
 public class DubboPlugin implements Plugin {

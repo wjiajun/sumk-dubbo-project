@@ -19,12 +19,10 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author : wjiajun
- * @Reference
- * @description:
  */
 public class ReferenceBeanPostProcessor {
 
-    private static ConcurrentMap<String, ReferenceBean<?>> referenceBeanCache = Maps.newConcurrentMap();
+    private final static ConcurrentMap<String, ReferenceBean<?>> REFERENCE_BEAN_CACHE = Maps.newConcurrentMap();
 
     public static synchronized void init() {
         if (StartContext.inst().get(DubboConst.ENABLE_DUBBO) == null
@@ -63,14 +61,14 @@ public class ReferenceBeanPostProcessor {
         return referenceBean.get();
     }
 
-    private static void registerReferenceBean(ReferenceBean referenceBean, DubboBeanSpec referenceSpec) throws Exception {
+    private static void registerReferenceBean(ReferenceBean<?> referenceBean, DubboBeanSpec referenceSpec) throws Exception {
 
         String referenceBeanName = ResolveUtils.generateReferenceBeanName(referenceSpec);
 
         // 防止=被被截取
-        String referenceBeanMD5Name = S.hash().digestByteToString(referenceBeanName.getBytes(StandardCharsets.UTF_8));
-        if (IOC.get(referenceBeanMD5Name) == null) {
-            InnerIOC.putBean(referenceBeanMD5Name, referenceBean);
+        String referenceBeanNameKey = S.hash().digestByteToString(referenceBeanName.getBytes(StandardCharsets.UTF_8));
+        if (IOC.get(referenceBeanNameKey) == null) {
+            InnerIOC.putBean(referenceBeanNameKey, referenceBean);
         }
     }
 
@@ -78,9 +76,8 @@ public class ReferenceBeanPostProcessor {
         return IOC.get(referencedBeanName) != null && !isRemoteReferenceBean(referenceBean, referencedSpec);
     }
 
-    private static boolean isRemoteReferenceBean(ReferenceBean referenceBean, DubboBeanSpec referencedSpec) {
-        boolean remote = Boolean.FALSE.equals(referenceBean.isInjvm()) || Boolean.FALSE.equals(referencedSpec.getAnnotationAttributes().getBoolean("injvm"));
-        return remote;
+    private static boolean isRemoteReferenceBean(ReferenceBean<?> referenceBean, DubboBeanSpec referencedSpec) {
+        return Boolean.FALSE.equals(referenceBean.isInjvm()) || Boolean.FALSE.equals(referencedSpec.getAnnotationAttributes().getBoolean("injvm"));
     }
 
     private static ReferenceBean<?> buildReferenceBeanIfAbsent(DubboBeanSpec referenceSpec, Field referencedField)
@@ -90,8 +87,8 @@ public class ReferenceBeanPostProcessor {
 
         String referenceBeanName = ResolveUtils.generateReferenceBeanName(referenceSpec);
 
-        String referenceBeanMD5Name = S.hash().digestByteToString(referenceBeanName.getBytes(StandardCharsets.UTF_8));
-        ReferenceBean<?> referenceBean = referenceBeanCache.get(referenceBeanMD5Name);
+        String referenceBeanNameKey = S.hash().digestByteToString(referenceBeanName.getBytes(StandardCharsets.UTF_8));
+        ReferenceBean<?> referenceBean = REFERENCE_BEAN_CACHE.get(referenceBeanNameKey);
 
         // 然后，如果不存在，则进行创建。然后，添加到 referenceBeanCache 缓存中。
         if (referenceBean == null) {
@@ -99,7 +96,7 @@ public class ReferenceBeanPostProcessor {
                     .create(referenceSpec)
                     .interfaceClass(referencedType);
             referenceBean = beanBuilder.build();
-            referenceBeanCache.put(referenceBeanMD5Name, referenceBean);
+            REFERENCE_BEAN_CACHE.put(referenceBeanNameKey, referenceBean);
         } else if (!referencedType.isAssignableFrom(referenceBean.getInterfaceClass())) {
             throw new IllegalArgumentException("reference bean name " + referenceBeanName + " has been duplicated, but interfaceClass " +
                     referenceBean.getInterfaceClass().getName() + " cannot be assigned to " + referencedType.getName());
@@ -132,10 +129,12 @@ public class ReferenceBeanPostProcessor {
         f.set(bean, target);
     }
 
-    private static void prepareReferenceBean(String referencedBeanName, ReferenceBean referenceBean, boolean localServiceBean) {
-        if (localServiceBean) { // If the local @Service Bean exists
+    private static void prepareReferenceBean(String referencedBeanName, ReferenceBean<?> referenceBean, boolean localServiceBean) {
+        // If the local @Service Bean exists
+        if (localServiceBean) {
             referenceBean.setInjvm(Boolean.TRUE);
-            exportServiceBeanIfNecessary(referencedBeanName); // If the referenced ServiceBean exits, export it immediately
+            // If the referenced ServiceBean exits, export it immediately
+            exportServiceBeanIfNecessary(referencedBeanName);
         }
     }
 

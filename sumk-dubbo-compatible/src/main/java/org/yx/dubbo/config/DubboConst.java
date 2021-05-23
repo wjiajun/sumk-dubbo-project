@@ -2,7 +2,6 @@ package org.yx.dubbo.config;
 
 /**
  * @author : wjiajun
- * @description:
  */
 public class DubboConst {
 
@@ -23,4 +22,8 @@ public class DubboConst {
     public static final String DEFAULT_PROVIDER_CONFIG_NAME = "provider";
 
     public static final String DEFAULT_CONSUMER_CONFIG_NAME = "consumer";
+
+    public static final String SUMK_CONFIG_PREFIX = "${";
+
+    public static final String SUMK_CONFIG_SUFFIX = "}";
 }

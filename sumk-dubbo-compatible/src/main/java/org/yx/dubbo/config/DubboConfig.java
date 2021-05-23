@@ -14,7 +14,6 @@ import java.util.Objects;
 /**
  * Dubbo配置加载
  * @author : wjiajun
- * @description:
  */
 public class DubboConfig {
 

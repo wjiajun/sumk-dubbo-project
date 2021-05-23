@@ -11,6 +11,9 @@ import org.yx.main.StartContext;
 
 import java.util.Objects;
 
+/**
+ * @author wjiajun
+ */
 @Bean
 public class DubboCloseListener implements DubboEventListener {
 

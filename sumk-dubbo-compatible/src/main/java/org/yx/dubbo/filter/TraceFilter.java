@@ -17,7 +17,6 @@ import java.util.Map;
 
 /**
  * @author : wjiajun
- * @description:
  */
 @Activate(
         group = {CommonConstants.CONSUMER, CommonConstants.PROVIDER},

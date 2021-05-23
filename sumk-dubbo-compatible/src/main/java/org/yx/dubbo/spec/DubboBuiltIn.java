@@ -16,16 +16,15 @@ import java.util.function.Function;
 
 /**
  * @author : wjiajun
- * @description:
  */
 public class DubboBuiltIn {
 
-    private final static List<Class<? extends Annotation>> serviceAnnotationTypes = ServiceAnnotationResolver.SERVICE_ANNOTATION_CLASSES;
+    private final static List<Class<? extends Annotation>> SERVICE_ANNOTATION_TYPES = ServiceAnnotationResolver.SERVICE_ANNOTATION_CLASSES;
 
-    private final static List<Class<? extends Annotation>> referenceAnnotationTypes = ReferenceAnnotationResolver.REFERENCE_ANNOTATION_CLASSES;
+    private final static List<Class<? extends Annotation>> REFERENCE_ANNOTATION_TYPES = ReferenceAnnotationResolver.REFERENCE_ANNOTATION_CLASSES;
 
     public static final Function<Class<?>, DubboBeanSpec> DUBBO_PARSER = clz -> {
-        boolean isDubboService = serviceAnnotationTypes.stream().anyMatch(t -> clz.getAnnotation(t) != null);
+        boolean isDubboService = SERVICE_ANNOTATION_TYPES.stream().anyMatch(t -> clz.getAnnotation(t) != null);
         if (!isDubboService) {
             return null;
         }
@@ -50,7 +49,7 @@ public class DubboBuiltIn {
     };
 
     public static final BiFunction<Object, Field, DubboBeanSpec> DUBBO_REFERENCE_PARSER = (src, f) -> {
-        boolean isDubboService = referenceAnnotationTypes.stream().anyMatch(t -> f.getAnnotation(t) != null);
+        boolean isDubboService = REFERENCE_ANNOTATION_TYPES.stream().anyMatch(t -> f.getAnnotation(t) != null);
         if (!isDubboService) {
             return null;
         }

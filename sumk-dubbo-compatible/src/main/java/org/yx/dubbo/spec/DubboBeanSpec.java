@@ -4,7 +4,6 @@ import org.yx.dubbo.annotation.AnnotationAttributes;
 
 /**
  * @author : wjiajun
- * @description:
  */
 public class DubboBeanSpec {
 

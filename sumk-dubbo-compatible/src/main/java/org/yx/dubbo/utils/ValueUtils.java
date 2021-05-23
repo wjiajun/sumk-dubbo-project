@@ -1,18 +1,19 @@
 package org.yx.dubbo.utils;
 
+import org.apache.dubbo.common.utils.StringUtils;
 import org.yx.conf.AppInfo;
+import org.yx.dubbo.config.DubboConst;
 
 import java.util.StringJoiner;
 
 /**
  * @author : wjiajun
- * @description:
  */
 public class ValueUtils {
 
     public static String getValue(String value) {
-        String replace = value.replace("${", "").replace("}", "");
-        return AppInfo.getLatin(replace, "");
+        String replace = value.replace(DubboConst.SUMK_CONFIG_PREFIX, StringUtils.EMPTY_STRING).replace(DubboConst.SUMK_CONFIG_SUFFIX, StringUtils.EMPTY_STRING);
+        return AppInfo.getLatin(replace, StringUtils.EMPTY_STRING);
     }
 
     public static String arrayToDelimitedString(Object[] arr, String delim) {

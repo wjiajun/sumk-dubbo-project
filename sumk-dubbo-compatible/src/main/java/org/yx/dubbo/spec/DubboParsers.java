@@ -11,7 +11,6 @@ import java.util.function.Function;
 
 /**
  * @author : wjiajun
- * @description:
  */
 public class DubboParsers {
 

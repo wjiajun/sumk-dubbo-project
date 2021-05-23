@@ -6,9 +6,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
+/**
+ * @author spring
+ */
 public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 
 	private final Class<? extends Annotation> annotationType;

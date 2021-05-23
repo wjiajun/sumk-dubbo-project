@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
+/**
+ * @author spring
+ */
 public class ObjectUtils {
 
 	private static final int INITIAL_HASH = 7;
