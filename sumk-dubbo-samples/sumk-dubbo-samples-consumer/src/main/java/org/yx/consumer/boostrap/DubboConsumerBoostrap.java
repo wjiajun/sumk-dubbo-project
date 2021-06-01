@@ -21,10 +21,13 @@ public class DubboConsumerBoostrap {
         SumkServer.start(StartConstants.NOHTTP, DubboConst.ENABLE_DUBBO);
         System.out.println("启动完成,除zookeeper服务器外耗时："+(System.currentTimeMillis()-begin)+"毫秒");
 
-//        DefaultConsumerDemoService demoService = IOC.get(DefaultConsumerDemoService.class);
-//        System.out.println(demoService.run());
-//        SumkTraceConsumerService sumkTraceConsumerService = IOC.get(SumkTraceConsumerService.class);
-//        sumkTraceConsumerService.testTrace();;
+        // 验证injvm
+        DefaultConsumerDemoService demoService = IOC.get(DefaultConsumerDemoService.class);
+        System.out.println(demoService.run());
+
+        // 验证trace
+        SumkTraceConsumerService sumkTraceConsumerService = IOC.get(SumkTraceConsumerService.class);
+        sumkTraceConsumerService.testTrace();;
 
         try {
             Thread.currentThread().join();
