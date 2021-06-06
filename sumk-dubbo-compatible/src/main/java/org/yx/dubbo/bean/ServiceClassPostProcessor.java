@@ -1,5 +1,6 @@
 package org.yx.dubbo.bean;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 import org.apache.dubbo.common.utils.ArrayUtils;
 import org.apache.dubbo.common.utils.CollectionUtils;
@@ -23,8 +24,8 @@ import org.yx.common.scaner.ClassScaner;
 import org.yx.conf.AppInfo;
 import org.yx.conf.Const;
 import org.yx.dubbo.annotation.AnnotationAttributes;
+import org.yx.dubbo.config.DubboConst;
 import org.yx.dubbo.ioc.BeanRegistry;
-import org.yx.dubbo.main.DubboStartConstants;
 import org.yx.dubbo.spec.DubboBeanSpec;
 import org.yx.dubbo.spec.DubboBuiltIn;
 import org.yx.dubbo.utils.ResolveUtils;
@@ -50,10 +51,10 @@ import java.util.stream.Collectors;
 
 /**
  * @author : wjiajun
- * @Service
- * @description:
  */
 public class ServiceClassPostProcessor {
+
+    private static final String[] DUBBO_PACKAGES = {"dubbo.scan.base-packages", "dubbo.scan.basePackages"};
 
     private static final Logger logger = Logs.ioc();
 
@@ -63,12 +64,12 @@ public class ServiceClassPostProcessor {
     private static ConcurrentHashSet<String> serviceBeanNameSet;
 
     public static synchronized void init() {
-        if (StartContext.inst().get(DubboStartConstants.ENABLE_DUBBO) == null
-                || Objects.equals(StartContext.inst().get(DubboStartConstants.ENABLE_DUBBO), false)) {
+        if (StartContext.inst().get(DubboConst.ENABLE_DUBBO) == null
+                || Objects.equals(StartContext.inst().get(DubboConst.ENABLE_DUBBO), false)) {
             return;
         }
 
-        List<String> dubboPackageNames = Arrays.stream(DubboStartConstants.DUBBO_PACKAGES)
+        List<String> dubboPackageNames = Arrays.stream(DUBBO_PACKAGES)
                 .map(AppInfo::getLatin)
                 .filter(StringUtil::isNotEmpty)
                 .map(i -> StringUtil.splitAndTrim(i, Const.COMMA, Const.SEMICOLON))
@@ -104,8 +105,6 @@ public class ServiceClassPostProcessor {
 
     /**
      * 获取已经注入的Dubbo Service Bean Name(Sumk)
-     *
-     * @return
      */
     public static ConcurrentHashSet<String> getServiceBeanNameSet() {
         return Optional.ofNullable(serviceBeanNameSet).orElse(new ConcurrentHashSet<>());
@@ -130,8 +129,10 @@ public class ServiceClassPostProcessor {
             serviceBeanNameSet.add(beanName);
 
             // 生成beanName ServiceBean
-            ServiceBean serviceBean = buildServiceBean(beanMap.get(beanName), parse);
+            ServiceBean<?> serviceBean = buildServiceBean(beanMap.get(beanName), parse);
             String serviceBeanName = ResolveUtils.generateServiceBeanName(parse);
+            serviceBean.setId(MoreObjects.firstNonNull(serviceBean.getId(), serviceBeanName));
+            serviceBean.afterPropertiesSet();
             InnerIOC.putBean(serviceBeanName, serviceBean);
 
             // 注册到DubboBootstrap
@@ -147,9 +148,9 @@ public class ServiceClassPostProcessor {
         });
     }
 
-    private static ServiceBean buildServiceBean(Object obj, DubboBeanSpec dubboBeanSpec) {
+    private static ServiceBean<?> buildServiceBean(Object obj, DubboBeanSpec dubboBeanSpec) {
         Class<?> interfaceClass = dubboBeanSpec.getInterfaceClass();
-        ServiceBean serviceBean = ServiceBeanFactory.create(dubboBeanSpec.getAnnotationAttributes().annotation());
+        ServiceBean<Object> serviceBean = ServiceBeanFactory.create(dubboBeanSpec.getAnnotationAttributes().annotation());
 
         AnnotationAttributes annotationAttributes = dubboBeanSpec.getAnnotationAttributes();
 

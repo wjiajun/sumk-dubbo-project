@@ -15,40 +15,17 @@ public class ServiceBean<T> extends ServiceConfig<T> {
 
     private static final long serialVersionUID = 213195494150089726L;
 
-    private final transient Service service;
-
-    private final transient com.alibaba.dubbo.config.annotation.Service oldService;
-
     private final transient DubboService dubboService;
 
     private transient String beanName;
 
     public ServiceBean() {
         super();
-        this.service = null;
-        this.oldService = null;
         this.dubboService = null;
-    }
-
-    public ServiceBean(Service service) {
-        super(service);
-        this.oldService = null;
-        this.service = service;
-        this.dubboService = null;
-    }
-
-    public ServiceBean(com.alibaba.dubbo.config.annotation.Service service) {
-        super();
-        this.oldService = service;
-        this.service = null;
-        this.dubboService = null;
-        appendAnnotation(com.alibaba.dubbo.config.annotation.Service.class, service);
     }
 
     public ServiceBean(DubboService service) {
         super();
-        this.oldService = null;
-        this.service = null;
         this.dubboService = service;
         appendAnnotation(DubboService.class, service);
         setMethods(MethodConfig.constructMethodConfig(service.methods()));
@@ -58,16 +35,11 @@ public class ServiceBean<T> extends ServiceConfig<T> {
         this.beanName = name;
     }
 
-    /**
-     * Gets associated {@link Service}
-     *
-     * @return associated {@link Service}
-     */
-    public Service getService() {
-        return service;
+    public DubboService getService() {
+        return dubboService;
     }
 
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         if (StringUtils.isEmpty(getPath())) {
             if (StringUtils.isNotEmpty(getInterface())) {
                 setPath(getInterface());
@@ -75,20 +47,11 @@ public class ServiceBean<T> extends ServiceConfig<T> {
         }
     }
 
-    /**
-     * Get the name of {@link org.apache.dubbo.config.spring.ServiceBean}
-     *
-     * @return {@link org.apache.dubbo.config.spring.ServiceBean}'s name
-     * @since 2.6.5
-     */
     @Parameter(excluded = true)
     public String getBeanName() {
         return this.beanName;
     }
 
-    /**
-     * @since 2.6.5
-     */
     @Override
     public void exported() {
         super.exported();

@@ -5,13 +5,15 @@ import java.lang.reflect.Modifier;
 
 /**
  * @author : wjiajun
- * @description:
  */
 public class ReflectionUtils {
 
     public static void makeAccessible(Method method) {
-        if ((!Modifier.isPublic(method.getModifiers()) ||
-                !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
+        if (!Modifier.isPublic(method.getModifiers())) {
+            method.setAccessible(true);
+        }
+
+        if ((!Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
             method.setAccessible(true);
         }
     }

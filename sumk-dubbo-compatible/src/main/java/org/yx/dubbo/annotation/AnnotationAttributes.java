@@ -6,30 +6,18 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
+/**
+ * @author spring
+ */
 public class AnnotationAttributes extends LinkedHashMap<String, Object> {
-
-	private static final String UNKNOWN = "unknown";
 
 	private final Class<? extends Annotation> annotationType;
 
 	private final String displayName;
 
 	private final Annotation annotation;
-
-	boolean validated = false;
-
-
-	/**
-	 * Create a new, empty {@link AnnotationAttributes} instance.
-	 */
-	public AnnotationAttributes() {
-		this.annotationType = null;
-		this.annotation = null;
-		this.displayName = UNKNOWN;
-	}
 
 	/**
 	 * Create a new, empty {@link AnnotationAttributes} instance for the
@@ -43,37 +31,6 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 		this.annotation = annotation;
 		this.annotationType = annotation.annotationType();
 		this.displayName = annotationType.getName();
-	}
-
-	@SuppressWarnings("unchecked")
-	private static Class<? extends Annotation> getAnnotationType(String annotationType, ClassLoader classLoader) {
-		if (classLoader != null) {
-			try {
-				return (Class<? extends Annotation>) classLoader.loadClass(annotationType);
-			}
-			catch (ClassNotFoundException ex) {
-				// Annotation Class not resolvable
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Create a new {@link AnnotationAttributes} instance, wrapping the provided
-	 * map and all its <em>key-value</em> pairs.
-	 * @param map original source of annotation attribute <em>key-value</em> pairs
-	 * @see #fromMap(Map)
-	 */
-	public AnnotationAttributes(Map<String, Object> map) {
-		super(map);
-		this.annotationType = null;
-		this.annotation = null;
-		this.displayName = UNKNOWN;
-	}
-
-
-	public Class<? extends Annotation> annotationType() {
-		return this.annotationType;
 	}
 
 	public Annotation annotation() {
@@ -302,14 +259,6 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 		}
 	}
 
-	private void assertAttributePresence(String attributeName, List<String> aliases, Object attributeValue) {
-		if (attributeValue == null) {
-			throw new IllegalArgumentException(String.format(
-					"Neither attribute '%s' nor one of its aliases %s was found in attributes for annotation [%s]",
-					attributeName, aliases, this.displayName));
-		}
-	}
-
 	private void assertNotException(String attributeName, Object attributeValue) {
 		if (attributeValue instanceof Exception) {
 			throw new IllegalArgumentException(String.format(
@@ -361,24 +310,4 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 		sb.append("}");
 		return sb.toString();
 	}
-
-
-	/**
-	 * Return an {@link AnnotationAttributes} instance based on the given map.
-	 * <p>If the map is already an {@code AnnotationAttributes} instance, it
-	 * will be cast and returned immediately without creating a new instance.
-	 * Otherwise a new instance will be created by passing the supplied map
-	 * to the {@link #AnnotationAttributes(Map)} constructor.
-	 * @param map original source of annotation attribute <em>key-value</em> pairs
-	 */
-	public static AnnotationAttributes fromMap(Map<String, Object> map) {
-		if (map == null) {
-			return null;
-		}
-		if (map instanceof AnnotationAttributes) {
-			return (AnnotationAttributes) map;
-		}
-		return new AnnotationAttributes(map);
-	}
-
 }

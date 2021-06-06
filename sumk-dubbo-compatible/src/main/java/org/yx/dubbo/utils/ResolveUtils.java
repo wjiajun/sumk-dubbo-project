@@ -12,7 +12,6 @@ import java.util.Map;
 
 /**
  * @author : wjiajun
- * @description:
  */
 public class ResolveUtils {
 

@@ -17,14 +17,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.yx.dubbo.config.DubboConst.SUMK_CONFIG_PREFIX;
+import static org.yx.dubbo.config.DubboConst.SUMK_CONFIG_SUFFIX;
+
 /**
  * @author : wjiajun
- * @description: 注解解析
+ *  注解解析
  */
 public class AnnotationResolver {
 
-    private static final Map<Class<? extends Annotation>, List<Method>> attributeMethodsCache =
-            new ConcurrentHashMap<Class<? extends Annotation>, List<Method>>(256);
+    private static final Map<Class<? extends Annotation>, List<Method>> ATTRIBUTE_METHODS_CACHE =
+            new ConcurrentHashMap<>(256);
 
     public static AnnotationAttributes getAnnotationAttributes(Annotation annotation) {
         AnnotationAttributes attributes =
@@ -49,7 +52,8 @@ public class AnnotationResolver {
 
         Class<?> interfaceClass = attributes.getClass("interfaceClass");
 
-        if (void.class.equals(interfaceClass)) { // default or set void.class for purpose.
+        // default or set void.class for purpose.
+        if (void.class.equals(interfaceClass)) {
 
             interfaceClass = null;
 
@@ -121,12 +125,12 @@ public class AnnotationResolver {
     }
 
     static List<Method> getAttributeMethods(Class<? extends Annotation> annotationType) {
-        List<Method> methods = attributeMethodsCache.get(annotationType);
+        List<Method> methods = ATTRIBUTE_METHODS_CACHE.get(annotationType);
         if (methods != null) {
             return methods;
         }
 
-        methods = new ArrayList<Method>();
+        methods = new ArrayList<>();
         for (Method method : annotationType.getDeclaredMethods()) {
             if (isAttributeMethod(method)) {
                 ReflectionUtils.makeAccessible(method);
@@ -134,7 +138,7 @@ public class AnnotationResolver {
             }
         }
 
-        attributeMethodsCache.put(annotationType, methods);
+        ATTRIBUTE_METHODS_CACHE.put(annotationType, methods);
         return methods;
     }
 
@@ -153,16 +157,16 @@ public class AnnotationResolver {
         if (value instanceof Annotation[]) {
             Annotation[] annotations = (Annotation[]) value;
             AnnotationAttributes[] mappedAnnotations = new AnnotationAttributes[annotations.length];
-            for (int i = 0; i < annotations.length; i++) {
-                mappedAnnotations[i] =
-                        getAnnotationAttributes(annotations[i]);
+
+            if(annotations.length > 0) {
+                mappedAnnotations[0] =
+                        getAnnotationAttributes(annotations[0]);
                 return mappedAnnotations;
             }
-
         }
 
-        if (value instanceof String && ((String) value).contains("${")) {
-            String replace = ((String) value).replace("${", "").replace("}", "");
+        if (value instanceof String && ((String) value).contains(SUMK_CONFIG_PREFIX)) {
+            String replace = ((String) value).replace(SUMK_CONFIG_PREFIX, StringUtils.EMPTY_STRING).replace(SUMK_CONFIG_SUFFIX, StringUtils.EMPTY_STRING);
             return AppInfo.getLatin(replace);
         }
 

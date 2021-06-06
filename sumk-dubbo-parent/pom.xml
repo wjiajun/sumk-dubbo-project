@@ -37,6 +37,7 @@
         <apache-rat-plugin.version>0.12</apache-rat-plugin.version>
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
+        <mina_version>2.1.0</mina_version>
     </properties>
 
     <dependencyManagement>
@@ -57,6 +58,12 @@
                 <version>${dubbo.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.mina</groupId>
+                        <artifactId>mina-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -98,6 +105,12 @@
                 <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo-configcenter-zookeeper</artifactId>
                 <version>${dubbo-zookeeper.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.mina</groupId>
+                <artifactId>mina-core</artifactId>
+                <version>${mina_version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -154,33 +167,6 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
-
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-enforcer-plugin</artifactId>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>enforce-rules</id>-->
-<!--                        <goals>-->
-<!--                            <goal>enforce</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <rules>-->
-<!--                                <requireJavaVersion>-->
-<!--                                    <version>[1.8,)</version>-->
-<!--                                </requireJavaVersion>-->
-<!--                                <requireProperty>-->
-<!--                                    <property>project.name</property>-->
-<!--                                </requireProperty>-->
-<!--                                <requireProperty>-->
-<!--                                    <property>project.description</property>-->
-<!--                                </requireProperty>-->
-<!--                            </rules>-->
-<!--                            <fail>true</fail>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

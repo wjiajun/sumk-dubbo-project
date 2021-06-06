@@ -2,11 +2,12 @@ package org.yx.dubbo.config;
 
 /**
  * @author : wjiajun
- * @description:
  */
 public class DubboConst {
 
-    public static final String DEFAULT_NAME = "dubbo";
+    public static final String ENABLE_DUBBO = DubboConst.DEFAULT_NAME;
+
+    public static final String DEFAULT_NAME = "META-INF/dubbo";
 
     public static final String DEFAULT_APPLICATION_CONFIG_NAME = "application";
 
@@ -21,4 +22,8 @@ public class DubboConst {
     public static final String DEFAULT_PROVIDER_CONFIG_NAME = "provider";
 
     public static final String DEFAULT_CONSUMER_CONFIG_NAME = "consumer";
+
+    public static final String SUMK_CONFIG_PREFIX = "${";
+
+    public static final String SUMK_CONFIG_SUFFIX = "}";
 }

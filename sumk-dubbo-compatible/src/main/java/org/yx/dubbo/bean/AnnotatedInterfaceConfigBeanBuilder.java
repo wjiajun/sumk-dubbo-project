@@ -11,6 +11,10 @@ import org.yx.dubbo.spec.DubboBeanSpec;
 
 import java.util.List;
 
+/**
+ * @author wjiajun
+ * @param <C>
+ */
 public abstract class AnnotatedInterfaceConfigBeanBuilder<C extends AbstractInterfaceConfig> {
 
     protected final DubboBeanSpec dubboBeanSpec;

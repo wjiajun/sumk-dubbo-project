@@ -13,6 +13,10 @@
 
     <artifactId>sumk-dubbo-samples-provider</artifactId>
 
+    <properties>
+        <slf4j-log4j12.version>1.7.25</slf4j-log4j12.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.github.wjiajun</groupId>
@@ -24,6 +28,11 @@
             <groupId>com.github.wjiajun</groupId>
             <artifactId>sumk-dubbo-samples-api</artifactId>
             <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
         </dependency>
     </dependencies>
 

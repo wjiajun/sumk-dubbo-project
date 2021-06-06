@@ -6,12 +6,10 @@ import org.yx.consumer.DemoService;
 
 /**
  * @author : wjiajun
- * @description:
  */
 @Bean
 public class DefaultConsumerDemoService {
 
-//    @DubboReference(version = "${demo.service.version}", url = "${demo.service.url}")
     @DubboReference(version = "1.0.0")
     private DemoService demoService;
 

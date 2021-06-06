@@ -4,7 +4,6 @@ import org.yx.listener.SumkEvent;
 
 /**
  * @author : wjiajun
- * @description:
  */
 public class DubboCloseEvent extends SumkEvent {
 
