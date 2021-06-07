@@ -10,6 +10,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <description>Sumk Dubbo Project Samples</description>
+    <name>Sumk Dubbo Project Samples</name>
     <artifactId>sumk-dubbo-samples</artifactId>
     <packaging>pom</packaging>
 

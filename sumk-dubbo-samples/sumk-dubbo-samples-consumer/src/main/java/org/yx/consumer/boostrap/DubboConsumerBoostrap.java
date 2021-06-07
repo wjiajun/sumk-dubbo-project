@@ -28,7 +28,6 @@ import org.yx.main.SumkServer;
 
 /**
  * @author : wjiajun
- * @description:
  */
 public class DubboConsumerBoostrap {
 

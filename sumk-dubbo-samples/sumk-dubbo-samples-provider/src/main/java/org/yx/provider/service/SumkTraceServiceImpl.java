@@ -23,7 +23,6 @@ import org.yx.consumer.SumkTraceService;
 
 /**
  * @author : wjiajun
- * @description:
  */
 @DubboService(version = "1.0.0")
 public class SumkTraceServiceImpl implements SumkTraceService {

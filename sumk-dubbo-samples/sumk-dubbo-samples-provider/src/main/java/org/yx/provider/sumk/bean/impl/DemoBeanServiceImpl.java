@@ -22,7 +22,6 @@ import org.yx.provider.sumk.bean.DemoBeanService;
 
 /**
  * @author : wjiajun
- * @description:
  */
 @Bean
 public class DemoBeanServiceImpl implements DemoBeanService {

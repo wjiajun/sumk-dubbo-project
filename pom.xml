@@ -8,6 +8,8 @@
     <artifactId>sumk-dubbo-project</artifactId>
     <version>${revision}</version>
     <url>https://github.com/wjiajun/sumk-dubbo-project</url>
+    <description>Sumk Dubbo Project</description>
+    <name>Sumk Dubbo Project</name>
 
     <modules>
         <module>sumk-dubbo-parent</module>
@@ -57,6 +59,10 @@
             <name>repo-snapshot</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </snapshotRepository>
+<!--        <snapshotRepository>-->
+<!--            <id>ossrh</id>-->
+<!--            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>-->
+<!--        </snapshotRepository>-->
         <repository>
             <id>sonatype-nexus-staging</id>
             <name>repo-release</name>
@@ -142,6 +148,18 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

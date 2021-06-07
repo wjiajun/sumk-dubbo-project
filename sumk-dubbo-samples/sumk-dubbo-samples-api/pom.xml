@@ -12,6 +12,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>sumk-dubbo-samples-api</artifactId>
+    <name>sumk-dubbo-samples-api</name>
+    <description>sumk-dubbo-samples-api</description>
 
 
 </project>

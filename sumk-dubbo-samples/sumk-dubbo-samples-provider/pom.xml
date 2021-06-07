@@ -12,6 +12,7 @@
     </parent>
 
     <artifactId>sumk-dubbo-samples-provider</artifactId>
+    <name>sumk-dubbo-samples-provider</name>
 
     <properties>
         <slf4j-log4j12.version>1.7.25</slf4j-log4j12.version>
@@ -19,13 +20,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.wjiajun</groupId>
+            <groupId>io.github.wjiajun</groupId>
             <artifactId>sumk-dubbo-compatible</artifactId>
             <version>${revision}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.wjiajun</groupId>
+            <groupId>io.github.wjiajun</groupId>
             <artifactId>sumk-dubbo-samples-api</artifactId>
             <version>${revision}</version>
         </dependency>
