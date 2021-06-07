@@ -1,3 +1,20 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.yx.dubbo.bean;
 
 import org.apache.dubbo.config.AbstractInterfaceConfig;
@@ -19,8 +36,6 @@ public abstract class AnnotatedInterfaceConfigBeanBuilder<C extends AbstractInte
 
     protected final DubboBeanSpec dubboBeanSpec;
 
-    protected Object configBean;
-
     protected Class<?> interfaceClass;
 
     protected AnnotatedInterfaceConfigBeanBuilder(DubboBeanSpec dubboBeanSpec) {
@@ -31,7 +46,6 @@ public abstract class AnnotatedInterfaceConfigBeanBuilder<C extends AbstractInte
      * Build {@link C}
      *
      * @return non-null
-     * @throws Exception
      */
     public final C build() throws Exception {
 
@@ -75,8 +89,21 @@ public abstract class AnnotatedInterfaceConfigBeanBuilder<C extends AbstractInte
 
     }
 
+    /**
+     * preConfigureBean
+     *
+     * @param dubboBeanSpec
+     * @param configBean
+     * @throws Exception
+     */
     protected abstract void preConfigureBean(DubboBeanSpec dubboBeanSpec, C configBean) throws Exception;
 
+    /**
+     * configureParametersConfig
+     *
+     * @param dubboBeanSpec
+     * @param referenceBean
+     */
     protected abstract void configureParametersConfig(DubboBeanSpec dubboBeanSpec, C referenceBean);
 
 
@@ -160,12 +187,6 @@ public abstract class AnnotatedInterfaceConfigBeanBuilder<C extends AbstractInte
      * @param configBean
      */
     protected abstract void postConfigureBean(DubboBeanSpec dubboBeanSpec, C configBean) throws Exception;
-
-
-    public <T extends AnnotatedInterfaceConfigBeanBuilder<C>> T configBean(Object configBean) {
-        this.configBean = configBean;
-        return (T) this;
-    }
 
     public <T extends AnnotatedInterfaceConfigBeanBuilder<C>> T interfaceClass(Class<?> interfaceClass) {
         this.interfaceClass = interfaceClass;

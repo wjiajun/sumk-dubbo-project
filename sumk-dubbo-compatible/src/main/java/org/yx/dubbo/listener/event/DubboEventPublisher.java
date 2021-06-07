@@ -1,3 +1,20 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.yx.dubbo.listener.event;
 
 import org.yx.dubbo.listener.DubboEventListener;
@@ -10,14 +27,14 @@ import org.yx.listener.SumkEvent;
  */
 public final class DubboEventPublisher {
 
-	private static final ListenerGroup<DubboEventListener> group = new ListenerGroupImpl<>();
+	private static final ListenerGroup<DubboEventListener> GROUP = new ListenerGroupImpl<>();
 
 	public static void publish(SumkEvent event) {
-		group.listen(event);
+		GROUP.listen(event);
 	}
 
 	public static ListenerGroup<DubboEventListener> group() {
-		return group;
+		return GROUP;
 	}
 
 }

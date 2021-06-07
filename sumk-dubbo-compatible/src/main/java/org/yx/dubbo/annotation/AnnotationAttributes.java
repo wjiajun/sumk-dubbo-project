@@ -1,3 +1,20 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.yx.dubbo.annotation;
 
 import org.apache.dubbo.common.utils.Assert;
@@ -9,27 +26,18 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * @author spring
+ * @author wjiajun
  */
 public class AnnotationAttributes extends LinkedHashMap<String, Object> {
-
-	private final Class<? extends Annotation> annotationType;
 
 	private final String displayName;
 
 	private final Annotation annotation;
 
-	/**
-	 * Create a new, empty {@link AnnotationAttributes} instance for the
-	 * specified {@code annotationType}.
-	 * @param annotation the type of annotation represented by this
-	 * {@code AnnotationAttributes} instance; never {@code null}
-	 * @since 4.2
-	 */
 	public AnnotationAttributes(Annotation annotation) {
 		Assert.notNull(annotation.annotationType(), "'annotationType' must not be null");
 		this.annotation = annotation;
-		this.annotationType = annotation.annotationType();
+		Class<? extends Annotation> annotationType = annotation.annotationType();
 		this.displayName = annotationType.getName();
 	}
 
@@ -37,184 +45,29 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 		return this.annotation;
 	}
 
-	/**
-	 * Get the value stored under the specified {@code attributeName} as a
-	 * string.
-	 * @param attributeName the name of the attribute to get; never
-	 * {@code null} or empty
-	 * @return the value
-	 * @throws IllegalArgumentException if the attribute does not exist or
-	 * if it is not of the expected type
-	 */
 	public String getString(String attributeName) {
 		return getRequiredAttribute(attributeName, String.class);
 	}
 
-	/**
-	 * Get the value stored under the specified {@code attributeName} as an
-	 * array of strings.
-	 * <p>If the value stored under the specified {@code attributeName} is
-	 * a string, it will be wrapped in a single-element array before
-	 * returning it.
-	 * @param attributeName the name of the attribute to get; never
-	 * {@code null} or empty
-	 * @return the value
-	 * @throws IllegalArgumentException if the attribute does not exist or
-	 * if it is not of the expected type
-	 */
 	public String[] getStringArray(String attributeName) {
 		return getRequiredAttribute(attributeName, String[].class);
 	}
 
-	/**
-	 * Get the value stored under the specified {@code attributeName} as a boolean.
-	 * @param attributeName the name of the attribute to get;
-	 * never {@code null} or empty
-	 * @return the value
-	 * @throws IllegalArgumentException if the attribute does not exist or
-	 * if it is not of the expected type
-	 */
 	public boolean getBoolean(String attributeName) {
 		return getRequiredAttribute(attributeName, Boolean.class);
 	}
 
-	/**
-	 * Get the value stored under the specified {@code attributeName} as a number.
-	 * @param attributeName the name of the attribute to get;
-	 * never {@code null} or empty
-	 * @return the value
-	 * @throws IllegalArgumentException if the attribute does not exist or
-	 * if it is not of the expected type
-	 */
-	@SuppressWarnings("unchecked")
-	public <N extends Number> N getNumber(String attributeName) {
-		return (N) getRequiredAttribute(attributeName, Number.class);
-	}
-
-	/**
-	 * Get the value stored under the specified {@code attributeName} as an enum.
-	 * @param attributeName the name of the attribute to get;
-	 * never {@code null} or empty
-	 * @return the value
-	 * @throws IllegalArgumentException if the attribute does not exist or
-	 * if it is not of the expected type
-	 */
-	@SuppressWarnings("unchecked")
-	public <E extends Enum<?>> E getEnum(String attributeName) {
-		return (E) getRequiredAttribute(attributeName, Enum.class);
-	}
-
-	/**
-	 * Get the value stored under the specified {@code attributeName} as a class.
-	 * @param attributeName the name of the attribute to get;
-	 * never {@code null} or empty
-	 * @return the value
-	 * @throws IllegalArgumentException if the attribute does not exist or
-	 * if it is not of the expected type
-	 */
 	@SuppressWarnings("unchecked")
 	public <T> Class<? extends T> getClass(String attributeName) {
 		return getRequiredAttribute(attributeName, Class.class);
 	}
 
-	/**
-	 * Get the value stored under the specified {@code attributeName} as an
-	 * array of classes.
-	 * <p>If the value stored under the specified {@code attributeName} is a class,
-	 * it will be wrapped in a single-element array before returning it.
-	 * @param attributeName the name of the attribute to get;
-	 * never {@code null} or empty
-	 * @return the value
-	 * @throws IllegalArgumentException if the attribute does not exist or
-	 * if it is not of the expected type
-	 */
-	public Class<?>[] getClassArray(String attributeName) {
-		return getRequiredAttribute(attributeName, Class[].class);
-	}
-
-	/**
-	 * Get the {@link AnnotationAttributes} stored under the specified
-	 * {@code attributeName}.
-	 * <p>Note: if you expect an actual annotation, invoke
-	 * {@link #getAnnotation(String, Class)} instead.
-	 * @param attributeName the name of the attribute to get; never
-	 * {@code null} or empty
-	 * @return the {@code AnnotationAttributes}
-	 * @throws IllegalArgumentException if the attribute does not exist or
-	 * if it is not of the expected type
-	 */
-	public AnnotationAttributes getAnnotation(String attributeName) {
-		return getRequiredAttribute(attributeName, AnnotationAttributes.class);
-	}
-
-	/**
-	 * Get the annotation of type {@code annotationType} stored under the
-	 * specified {@code attributeName}.
-	 * @param attributeName the name of the attribute to get;
-	 * never {@code null} or empty
-	 * @param annotationType the expected annotation type; never {@code null}
-	 * @return the annotation
-	 * @throws IllegalArgumentException if the attribute does not exist or
-	 * if it is not of the expected type
-	 * @since 4.2
-	 */
-	public <A extends Annotation> A getAnnotation(String attributeName, Class<A> annotationType) {
-		return getRequiredAttribute(attributeName, annotationType);
-	}
-
-	/**
-	 * Get the array of {@link AnnotationAttributes} stored under the specified
-	 * {@code attributeName}.
-	 * <p>If the value stored under the specified {@code attributeName} is
-	 * an instance of {@code AnnotationAttributes}, it will be wrapped in
-	 * a single-element array before returning it.
-	 * <p>Note: if you expect an actual array of annotations, invoke
-	 * {@link #getAnnotationArray(String, Class)} instead.
-	 * @param attributeName the name of the attribute to get;
-	 * never {@code null} or empty
-	 * @return the array of {@code AnnotationAttributes}
-	 * @throws IllegalArgumentException if the attribute does not exist or
-	 * if it is not of the expected type
-	 */
-	public AnnotationAttributes[] getAnnotationArray(String attributeName) {
-		return getRequiredAttribute(attributeName, AnnotationAttributes[].class);
-	}
-
-	/**
-	 * Get the array of type {@code annotationType} stored under the specified
-	 * {@code attributeName}.
-	 * <p>If the value stored under the specified {@code attributeName} is
-	 * an {@code Annotation}, it will be wrapped in a single-element array
-	 * before returning it.
-	 * @param attributeName the name of the attribute to get;
-	 * never {@code null} or empty
-	 * @param annotationType the expected annotation type; never {@code null}
-	 * @return the annotation array
-	 * @throws IllegalArgumentException if the attribute does not exist or
-	 * if it is not of the expected type
-	 * @since 4.2
-	 */
 	@SuppressWarnings("unchecked")
 	public <A extends Annotation> A[] getAnnotationArray(String attributeName, Class<A> annotationType) {
 		Object array = Array.newInstance(annotationType, 0);
 		return (A[]) getRequiredAttribute(attributeName, array.getClass());
 	}
 
-	/**
-	 * Get the value stored under the specified {@code attributeName},
-	 * ensuring that the value is of the {@code expectedType}.
-	 * <p>If the {@code expectedType} is an array and the value stored
-	 * under the specified {@code attributeName} is a single element of the
-	 * component type of the expected array type, the single element will be
-	 * wrapped in a single-element array of the appropriate type before
-	 * returning it.
-	 * @param attributeName the name of the attribute to get;
-	 * never {@code null} or empty
-	 * @param expectedType the expected type; never {@code null}
-	 * @return the value
-	 * @throws IllegalArgumentException if the attribute does not exist or
-	 * if it is not of the expected type
-	 */
 	@SuppressWarnings("unchecked")
 	private <T> T getRequiredAttribute(String attributeName, Class<T> expectedType) {
 		Assert.notEmptyString(attributeName, "'attributeName' must not be null or empty");
@@ -228,27 +81,6 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 			value = array;
 		}
 		assertAttributeType(attributeName, value, expectedType);
-		return (T) value;
-	}
-
-	/**
-	 * Get the value stored under the specified {@code attributeName},
-	 * ensuring that the value is of the {@code expectedType}.
-	 * @param attributeName the name of the attribute to get; never
-	 * {@code null} or empty
-	 * @param expectedType the expected type; never {@code null}
-	 * @return the value
-	 * @throws IllegalArgumentException if the attribute is not of the
-	 * expected type
-	 * @see #getRequiredAttribute(String, Class)
-	 */
-	@SuppressWarnings("unchecked")
-	private <T> T getAttribute(String attributeName, Class<T> expectedType) {
-		Object value = get(attributeName);
-		if (value != null) {
-			assertNotException(attributeName, value);
-			assertAttributeType(attributeName, value, expectedType);
-		}
 		return (T) value;
 	}
 
@@ -276,17 +108,6 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 		}
 	}
 
-	/**
-	 * Store the supplied {@code value} in this map under the specified
-	 * {@code key}, unless a value is already stored under the key.
-	 * @param key the key under which to store the value
-	 * @param value the value to store
-	 * @return the current value stored in this map, or {@code null} if no
-	 * value was previously stored in this map
-	 * @see #get
-	 * @see #put
-	 * @since 4.2
-	 */
 	@Override
 	public Object putIfAbsent(String key, Object value) {
 		Object obj = get(key);

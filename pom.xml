@@ -4,9 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.github.wjiajun</groupId>
+    <groupId>io.github.wjiajun</groupId>
     <artifactId>sumk-dubbo-project</artifactId>
     <version>${revision}</version>
+    <url>https://github.com/wjiajun/sumk-dubbo-project</url>
+
     <modules>
         <module>sumk-dubbo-parent</module>
         <module>sumk-dubbo-compatible</module>
@@ -21,6 +23,33 @@
         <revision>2.7.9</revision>
         <reference>2.7.9</reference>
     </properties>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/wjiajun/sumk-dubbo-project</url>
+        <connection>scm:git:git:////github.com/wjiajun/sumk-dubbo-project.git</connection>
+        <developerConnection>scm:git:ssh://git@//github.com/wjiajun/sumk-dubbo-project.git
+        </developerConnection>
+    </scm>
+
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/wjiajun/sumk-dubbo-project/issues</url>
+    </issueManagement>
+
+    <developers>
+        <developer>
+            <name>wjiajun</name>
+            <email>657447542@qq.com</email>
+        </developer>
+    </developers>
 
     <distributionManagement>
         <snapshotRepository>
@@ -39,6 +68,19 @@
         <profile>
             <id>release</id>
             <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                    </resource>
+                    <resource>
+                        <directory>.</directory>
+                        <includes>
+                            <include>LICENSE</include>
+                            <include>README.md</include>
+                        </includes>
+                    </resource>
+                </resources>
+
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -49,6 +91,28 @@
                                 <phase>package</phase>
                                 <goals>
                                     <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
                                 </goals>
                             </execution>
                         </executions>
