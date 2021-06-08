@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>io.github.wjiajun</groupId>
-            <artifactId>sumk-dubbo-compatible</artifactId>
+            <artifactId>sumk-dubbo</artifactId>
             <version>${revision}</version>
         </dependency>
 
@@ -34,6 +34,12 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.wjiajun</groupId>
+            <artifactId>sumk-dubbo</artifactId>
+            <version>0.0.1</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

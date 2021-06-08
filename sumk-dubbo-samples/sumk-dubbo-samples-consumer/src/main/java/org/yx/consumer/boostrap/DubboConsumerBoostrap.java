@@ -20,7 +20,7 @@ package org.yx.consumer.boostrap;
 import org.yx.bean.IOC;
 import org.yx.consumer.boostrap.service.DefaultConsumerDemoService;
 import org.yx.consumer.boostrap.service.SumkTraceConsumerService;
-import org.yx.dubbo.config.DubboConst;
+import org.yx.sumk.dubbo.config.DubboConst;
 import org.yx.log.Log;
 import org.yx.log.LogType;
 import org.yx.main.StartConstants;

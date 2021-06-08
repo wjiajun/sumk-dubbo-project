@@ -21,7 +21,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <sumk.version>2.9.11</sumk.version>
         <guava.version>[30.0-jre,)</guava.version>
-        <dubbo.version>${revision}</dubbo.version>
+        <dubbo.version>2.7.9</dubbo.version>
         <dubbo-zookeeper.version>${reference}</dubbo-zookeeper.version>
         <!-- Build args -->
         <argline>-server -Xms256m -Xmx512m -Dfile.encoding=UTF-8 -Djava.net.preferIPv4Stack=true

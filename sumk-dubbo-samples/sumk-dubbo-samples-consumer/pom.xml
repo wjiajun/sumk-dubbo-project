@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>io.github.wjiajun</groupId>
-            <artifactId>sumk-dubbo-compatible</artifactId>
+            <artifactId>sumk-dubbo</artifactId>
             <version>${revision}</version>
         </dependency>
 

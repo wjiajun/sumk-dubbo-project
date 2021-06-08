@@ -15,35 +15,36 @@
  * limitations under the License.
  */
 
-package org.yx.provider.boostrap;
+package org.yx.sumk.dubbo.utils;
 
+import org.apache.dubbo.common.utils.StringUtils;
+import org.yx.conf.AppInfo;
 import org.yx.sumk.dubbo.config.DubboConst;
-import org.yx.log.Log;
-import org.yx.log.LogType;
-import org.yx.main.StartConstants;
-import org.yx.main.SumkServer;
+
+import java.util.StringJoiner;
 
 /**
  * @author : wjiajun
  */
-public class DubboProviderBoostrap {
+public class ValueUtils {
 
-    public static void main(String[] args) {
-        Log.setLogType(LogType.slf4j);
-        long begin=System.currentTimeMillis();
-        SumkServer.start(StartConstants.NOHTTP, DubboConst.ENABLE_DUBBO);
-        System.out.println("启动完成,除zookeeper服务器外耗时："+(System.currentTimeMillis()-begin)+"毫秒");
+    public static String getValue(String value) {
+        String replace = value.replace(DubboConst.SUMK_CONFIG_PREFIX, StringUtils.EMPTY_STRING).replace(DubboConst.SUMK_CONFIG_SUFFIX, StringUtils.EMPTY_STRING);
+        return AppInfo.getLatin(replace, StringUtils.EMPTY_STRING);
+    }
 
-//        DubboPlugin demoBeanService = IOC.get(DubboPlugin.class);
-//        System.out.println();
-
-//        DefaultDemoService demoService = IOC.get(DefaultDemoService.class);
-//        System.out.println(demoService.sayHello("123"));
-
-        try {
-            Thread.currentThread().join();
-        } catch (InterruptedException e) {
-            Log.printStack("main",e);
+    public static String arrayToDelimitedString(Object[] arr, String delim) {
+        if (ObjectUtils.isEmpty(arr)) {
+            return "";
         }
+        if (arr.length == 1) {
+            return ObjectUtils.nullSafeToString(arr[0]);
+        }
+
+        StringJoiner sj = new StringJoiner(delim);
+        for (Object o : arr) {
+            sj.add(String.valueOf(o));
+        }
+        return sj.toString();
     }
 }

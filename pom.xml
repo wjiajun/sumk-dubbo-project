@@ -13,7 +13,7 @@
 
     <modules>
         <module>sumk-dubbo-parent</module>
-        <module>sumk-dubbo-compatible</module>
+        <module>sumk-dubbo</module>
         <module>sumk-dubbo-samples</module>
     </modules>
 
@@ -22,7 +22,7 @@
     <properties>
         <maven_javadoc_version>3.0.1</maven_javadoc_version>
         <maven_surefire_version>2.19.1</maven_surefire_version>
-        <revision>2.7.9</revision>
+        <revision>0.0.1</revision>
         <reference>2.7.9</reference>
     </properties>
 
