@@ -22,7 +22,7 @@
     <properties>
         <maven_javadoc_version>3.0.1</maven_javadoc_version>
         <maven_surefire_version>2.19.1</maven_surefire_version>
-        <revision>0.0.1</revision>
+        <revision>1.0.0</revision>
         <reference>2.7.9</reference>
     </properties>
 
